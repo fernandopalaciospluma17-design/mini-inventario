@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8f5">
+  <title>Mini Inventario</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <main id="app" class="shell">
+    <section id="login-view" class="login-card" hidden>
+      <div class="brand-mark">M</div>
+      <p class="eyebrow">CONTROL CLARO, TODOS LOS DÍAS</p>
+      <h1>Tu inventario,<br>en orden.</h1>
+      <p class="muted">Registra tus productos y mantén tus existencias bajo control.</p>
+      <a id="login-button" class="button primary google-button" href="/auth/google">
+        <span class="google-g" aria-hidden="true">G</span> Continuar con Google
+      </a>
+      <p class="small muted">Tu inventario es privado y solo tú puedes verlo.</p>
+      <p id="login-message" class="message" role="alert"></p>
+    </section>
+
+    <section id="inventory-view" hidden>
+      <header class="topbar">
+        <a class="brand" href="/"><span class="brand-mark small-mark">M</span><span>mini inventario</span></a>
+        <div class="account"><span id="user-name"></span><button id="logout-button" class="text-button">Cerrar sesión</button></div>
+      </header>
+      <div class="page-heading">
+        <div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h1>Inventario</h1><p class="muted">Una vista simple de lo que tienes y lo que necesitas reponer.</p></div>
+        <button id="add-button" class="button primary">＋ <span>Agregar producto</span></button>
+      </div>
+      <div class="summary-grid">
+        <article class="summary-card"><span class="summary-icon">▦</span><span class="summary-label">Productos</span><strong id="total-count">0</strong></article>
+        <article class="summary-card alert-card"><span class="summary-icon">↗</span><span class="summary-label">Por reponer</span><strong id="low-count">0</strong></article>
+      </div>
+      <section class="table-card">
+        <div class="table-heading"><div><h2>Todos los productos</h2><p class="muted">Revisa cantidades y niveles mínimos.</p></div><span id="product-count" class="count-pill">0 productos</span></div>
+        <div id="inventory-content"></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="product-dialog" class="product-dialog">
+    <form id="product-form">
+      <div class="dialog-heading"><div><p class="eyebrow">DETALLE DEL PRODUCTO</p><h2 id="dialog-title">Agregar producto</h2></div><button id="close-dialog" type="button" class="icon-button" aria-label="Cerrar">×</button></div>
+      <label>Nombre<input name="name" required maxlength="120" placeholder="Ej. Café de olla"></label>
+      <label>SKU<input name="sku" required maxlength="80" placeholder="Ej. CAF-001"></label>
+      <div class="form-row"><label>Cantidad<input name="quantity" type="number" min="0" step="1" required value="0"></label><label>Cantidad mínima<input name="minimum" type="number" min="0" step="1" required value="5"></label></div>
+      <p id="form-message" class="message" role="alert"></p>
+      <div class="dialog-actions"><button id="cancel-dialog" type="button" class="button secondary">Cancelar</button><button class="button primary" type="submit">Guardar producto</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

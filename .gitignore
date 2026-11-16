@@ -17,3 +17,6 @@ venv/
 
 # Build outputs
 dist/
+inventory.db
+*.sqlite
+*.sqlite3
