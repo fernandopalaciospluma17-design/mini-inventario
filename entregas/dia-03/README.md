@@ -84,9 +84,10 @@ La revisión de `public/productos.js` frente a `docs/diseno.md` detecta una desv
 
 ## H. Pull request
 
-- **Estado:** pendiente de crear y verificar con `gh` después de guardar y subir esta rama.
+- **Estado:** [PR #8 — Mini Inventario Día 3 con Express y localStorage](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/8), abierto desde `dia-03-web` hacia `main`.
 - **Base:** `main`.
-- **Issues previstos:** #3 (registro), #4 (inventario y bajo mínimo), #5 (edición) y #6 (eliminación), porque esta rama implementa esas capacidades. El issue #2 de autenticación no se vinculará: la autenticación está expresamente fuera de alcance del Día 3.
+- **Issues vinculados:** `Closes #3` (registro), `Closes #4` (inventario y bajo mínimo), `Closes #5` (edición) y `Closes #6` (eliminación), porque esta rama implementa esas capacidades. El issue #2 de autenticación no se vinculó: la autenticación está expresamente fuera de alcance del Día 3.
+- **Resumen y pruebas en el PR:** se documentaron las funciones, inicio local, las 7 pruebas aprobadas, comprobación HTTP y verificación visual pendiente por falta de navegador interactivo.
 - **Merge:** no realizado.
 
 ## I. Evidencias
