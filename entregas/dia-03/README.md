@@ -74,7 +74,8 @@ La revisión encontró inicialmente que `public/app.js` pasaba `window.localStor
 
 - **Comando de rama:** `git switch main; git pull --ff-only origin main; git switch -c dia-03-web`.
 - **Resultado:** ejecutado. El usuario aprobó el plan que incluía crear la rama desde `main`; no hubo una aprobación de comando separada ni se rechazó el comando de Git.
-- **Herramienta de navegador:** se intentó iniciar Edge headless mediante `Start-Process`; la política de herramientas bloqueó la ejecución. No se intentó eludir el bloqueo. La captura y validación visual quedan para la persona usuaria.
+- **Comando de navegador rechazado:** `$edgePath = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'; $profilePath = Join-Path $env:TEMP 'mini-inventario-edge-dia03'; $process = Start-Process -FilePath $edgePath -ArgumentList @('--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=9222',"--user-data-dir=$profilePath",'http://127.0.0.1:3000') -WindowStyle Hidden -PassThru; [pscustomobject]@{ProcessId=$process.Id; BrowserPath=$edgePath}`.
+- **Resultado:** la política de herramientas bloqueó el lanzamiento de Edge y el aviso indicó «blocked by policy» sin más detalle. No se intentó eludir el bloqueo. La captura y validación visual quedan para la persona usuaria.
 
 ## G. Verificación del contexto
 
