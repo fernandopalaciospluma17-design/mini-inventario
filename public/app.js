@@ -136,7 +136,7 @@ form.addEventListener('submit', (event) => {
 cancelButton.addEventListener('click', cancelEdit);
 
 try {
-  store = createProductosStore(window.localStorage);
+  store = createProductosStore();
   refresh();
 } catch (error) {
   form.querySelectorAll('input, button[type="submit"]').forEach((control) => { control.disabled = true; });

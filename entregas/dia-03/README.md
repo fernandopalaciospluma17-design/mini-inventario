@@ -68,7 +68,7 @@ No hay herramienta de navegador interactivo habilitada en esta sesión. El inten
 
 La rama de planificación contenía un servidor Python/FastAPI con SQLite y autenticación Google. La guía del Día 3 requiere Express, `localStorage` y ningún inicio de sesión en esta etapa. Se detectó al comparar la estructura y `package.json` con la actividad; se evitó trasladar ese código creando la rama desde `main` y recuperando solo los documentos. Mantener aquel servidor habría dejado la actividad en una arquitectura distinta de la solicitada.
 
-La revisión de `public/productos.js` frente a `docs/diseno.md` detecta una desviación intencional: el diseño objetivo usa Supabase/RLS y `user_id`, mientras esta etapa usa almacenamiento local sin identidad. No se identificaron otras diferencias de modelo en los campos disponibles. Se conserva esta limitación temporal conforme a la aprobación expresa del usuario.
+La revisión encontró inicialmente que `public/app.js` pasaba `window.localStorage` al módulo, lo que debilitaba la regla de que el módulo fuera el único punto de acceso. Se corrigió para que `app.js` llame a `createProductosStore()` sin acceder al almacenamiento; después se repitieron las pruebas. También detectó la desviación intencional del diseño objetivo (Supabase/RLS y `user_id`): esta etapa usa almacenamiento local sin identidad, conforme a la aprobación expresa del usuario.
 
 ## F. Comando o herramienta aprobada/rechazada
 
