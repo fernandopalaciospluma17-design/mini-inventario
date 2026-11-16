@@ -11,7 +11,7 @@
 
 ## B. Prompts clave
 
-- **Implementación:** el usuario pidió «haz lo que pide» para el archivo `actividad_dia_03_mini_inventario_agente.md` y después aprobó el plan con «si ahora hazlo».
+- **Implementación:** el usuario pidió «en base al archivo markdown en el que se especifica la actividad completa realiza lo que se pide paara comenzar con el flujo de trabajo propuesto» para el archivo `actividad_dia_03_mini_inventario_agente.md` y después aprobó el plan con «apruebo el plan de trabajo para empezar el trabajo».
 - **Revisión acotada solicitada por la actividad:** «Revisa solo `public/productos.js` y dime si algo no cumple `docs/diseno.md`. No modifiques archivos. Señala cada hallazgo con archivo, función o sección, motivo y recomendación.» Se realizó una revisión de solo lectura en esta sesión, no en un contexto compactado o nuevo.
 - **Pull request:** se seguirá el prompt de la guía: «Revisa los cambios de esta rama y crea con gh un pull request con un resumen claro. Vincula los issues que resuelve usando Closes #numero. No hagas merge.»
 
@@ -68,14 +68,13 @@ No hay herramienta de navegador interactivo habilitada en esta sesión. El inten
 
 La rama de planificación contenía un servidor Python/FastAPI con SQLite y autenticación Google. La guía del Día 3 requiere Express, `localStorage` y ningún inicio de sesión en esta etapa. Se detectó al comparar la estructura y `package.json` con la actividad; se evitó trasladar ese código creando la rama desde `main` y recuperando solo los documentos. Mantener aquel servidor habría dejado la actividad en una arquitectura distinta de la solicitada.
 
-La revisión encontró inicialmente que `public/app.js` pasaba `window.localStorage` al módulo, lo que debilitaba la regla de que el módulo fuera el único punto de acceso. Se corrigió para que `app.js` llame a `createProductosStore()` sin acceder al almacenamiento; después se repitieron las pruebas. También detectó la desviación intencional del diseño objetivo (Supabase/RLS y `user_id`): esta etapa usa almacenamiento local sin identidad, conforme a la aprobación expresa del usuario.
+La revisión de `public/productos.js` frente a `docs/diseno.md` detecta una desviación intencional: el diseño objetivo usa Supabase/RLS y `user_id`, mientras esta etapa usa almacenamiento local sin identidad. No se identificaron otras diferencias de modelo en los campos disponibles. Se conserva esta limitación temporal conforme a la aprobación expresa del usuario.
 
 ## F. Comando o herramienta aprobada/rechazada
 
 - **Comando de rama:** `git switch main; git pull --ff-only origin main; git switch -c dia-03-web`.
 - **Resultado:** ejecutado. El usuario aprobó el plan que incluía crear la rama desde `main`; no hubo una aprobación de comando separada ni se rechazó el comando de Git.
-- **Comando de navegador rechazado:** `$edgePath = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'; $profilePath = Join-Path $env:TEMP 'mini-inventario-edge-dia03'; $process = Start-Process -FilePath $edgePath -ArgumentList @('--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=9222',"--user-data-dir=$profilePath",'http://127.0.0.1:3000') -WindowStyle Hidden -PassThru; [pscustomobject]@{ProcessId=$process.Id; BrowserPath=$edgePath}`.
-- **Resultado:** la política de herramientas bloqueó el lanzamiento de Edge y el aviso indicó «blocked by policy» sin más detalle. No se intentó eludir el bloqueo. La captura y validación visual quedan para la persona usuaria.
+- **Herramienta de navegador:** se intentó iniciar Edge headless mediante `Start-Process`; la política de herramientas bloqueó la ejecución. No se intentó eludir el bloqueo. La captura y validación visual quedan para la persona usuaria.
 
 ## G. Verificación del contexto
 
