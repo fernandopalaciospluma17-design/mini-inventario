@@ -8,8 +8,16 @@ const statusMessage = document.querySelector('#status-message');
 const title = document.querySelector('#form-title');
 const saveButton = document.querySelector('#save-button');
 const cancelButton = document.querySelector('#cancel-edit');
+const authPanel = document.querySelector('#auth-panel');
+const authForm = document.querySelector('#auth-form');
+const authMessage = document.querySelector('#auth-message');
+const inventory = document.querySelector('#inventory');
+const signUpButton = document.querySelector('#sign-up');
+const signOutButton = document.querySelector('#sign-out');
+const signedInEmail = document.querySelector('#signed-in-email');
 let editingId = null;
 let store;
+let client;
 
 function setMessage(element, message, kind = '') {
   element.textContent = message;
@@ -68,8 +76,9 @@ function render(products) {
   }
 }
 
-function refresh() {
-  render(store.list());
+async function refresh() {
+  const products = await store.list();
+  render(products);
 }
 
 function startEdit(product) {
@@ -95,19 +104,19 @@ function cancelEdit() {
   setMessage(formMessage, '');
 }
 
-function deleteProduct(product) {
-  if (!window.confirm(`¿Eliminar «${product.nombre}» del inventario de este dispositivo?`)) return;
+async function deleteProduct(product) {
+  if (!window.confirm(`¿Eliminar «${product.nombre}» de tu inventario?`)) return;
   try {
-    store.remove(product.id);
+    await store.remove(product.id);
     if (editingId === product.id) cancelEdit();
-    refresh();
+    await refresh();
     setMessage(statusMessage, 'Producto eliminado.', 'success');
   } catch (error) {
     setMessage(statusMessage, error.message, 'error');
   }
 }
 
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
   setMessage(formMessage, '');
   const data = {
@@ -119,15 +128,15 @@ form.addEventListener('submit', (event) => {
 
   try {
     if (editingId) {
-      store.update(editingId, data);
+      await store.update(editingId, data);
       cancelEdit();
       setMessage(statusMessage, 'Producto actualizado.', 'success');
     } else {
-      store.add(data);
+      await store.add(data);
       form.reset();
       setMessage(statusMessage, 'Producto agregado.', 'success');
     }
-    refresh();
+    await refresh();
   } catch (error) {
     setMessage(formMessage, error instanceof ProductDataError ? error.message : 'No se pudo guardar el producto.', 'error');
   }
@@ -135,10 +144,80 @@ form.addEventListener('submit', (event) => {
 
 cancelButton.addEventListener('click', cancelEdit);
 
+function setAuthBusy(busy) {
+  authForm.querySelectorAll('input, button').forEach((control) => { control.disabled = busy; });
+  signUpButton.disabled = busy;
+}
+
+function showSession(session) {
+  const signedIn = Boolean(session);
+  authPanel.hidden = signedIn;
+  inventory.hidden = !signedIn;
+  signOutButton.hidden = !signedIn;
+  signedInEmail.textContent = signedIn ? session.user.email : '';
+  if (!signedIn) {
+    render([]);
+    cancelEdit();
+  }
+  if (signedIn && store) refresh().catch((error) => setMessage(statusMessage, error.message, 'error'));
+}
+
+authForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  setAuthBusy(true);
+  setMessage(authMessage, 'Iniciando sesión…');
+  const { email, password } = Object.fromEntries(new FormData(authForm));
+  try {
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) setMessage(authMessage, 'No se pudo iniciar sesión. Revisa el correo y la contraseña e inténtalo de nuevo.', 'error');
+    else setMessage(authMessage, 'Sesión iniciada.', 'success');
+  } catch {
+    setMessage(authMessage, 'No se pudo conectar con Supabase. Revisa tu conexión e inténtalo de nuevo.', 'error');
+  } finally {
+    setAuthBusy(false);
+  }
+});
+
+signUpButton.addEventListener('click', async () => {
+  if (!authForm.reportValidity()) return;
+  setAuthBusy(true);
+  setMessage(authMessage, 'Creando cuenta…');
+  const { email, password } = Object.fromEntries(new FormData(authForm));
+  try {
+    const { data, error } = await client.auth.signUp({ email, password });
+    if (error) setMessage(authMessage, 'No se pudo crear la cuenta. Revisa los datos e inténtalo de nuevo.', 'error');
+    else if (!data.session) setMessage(authMessage, 'Cuenta creada. Revisa tu correo para confirmarla y después inicia sesión.', 'success');
+    else setMessage(authMessage, 'Cuenta creada y sesión iniciada.', 'success');
+  } catch {
+    setMessage(authMessage, 'No se pudo conectar con Supabase. Revisa tu conexión e inténtalo de nuevo.', 'error');
+  } finally {
+    setAuthBusy(false);
+  }
+});
+
+signOutButton.addEventListener('click', async () => {
+  signOutButton.disabled = true;
+  try {
+    const { error } = await client.auth.signOut();
+    if (error) setMessage(statusMessage, 'No se pudo cerrar la sesión. Inténtalo de nuevo.', 'error');
+  } catch {
+    setMessage(statusMessage, 'No se pudo conectar con Supabase. Revisa tu conexión e inténtalo de nuevo.', 'error');
+  } finally {
+    signOutButton.disabled = false;
+  }
+});
+
 try {
-  store = createProductosStore();
-  refresh();
+  const config = window.MINI_INVENTARIO_CONFIG;
+  if (!config || !window.supabase?.createClient) throw new ProductDataError('Falta la configuración de Supabase. Revisa el archivo .env y reinicia el servidor.');
+  client = window.supabase.createClient(config.url, config.key);
+  store = createProductosStore(client);
+  client.auth.onAuthStateChange((_event, session) => queueMicrotask(() => showSession(session)));
+  client.auth.getSession().then(({ data, error }) => {
+    if (error) throw error;
+    showSession(data.session);
+  }).catch(() => setMessage(authMessage, 'No se pudo restaurar la sesión. Recarga la página e inténtalo de nuevo.', 'error'));
 } catch (error) {
-  form.querySelectorAll('input, button[type="submit"]').forEach((control) => { control.disabled = true; });
-  setMessage(formMessage, error.message || 'No se pudieron cargar los productos guardados.', 'error');
+  authForm.querySelectorAll('input, button').forEach((control) => { control.disabled = true; });
+  setMessage(authMessage, error.message || 'No se pudo iniciar la aplicación.', 'error');
 }

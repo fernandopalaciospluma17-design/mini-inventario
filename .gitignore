@@ -17,3 +17,6 @@ venv/
 
 # Build outputs
 dist/
+
+# Supabase local CLI state
+supabase/.temp/

@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#f5f7f3">
   <title>Mini Inventario</title>
   <link rel="stylesheet" href="/styles.css">
+  <script src="/config.js"></script>
+  <script src="/vendor/supabase.js"></script>
   <script type="module" src="/app.js"></script>
 </head>
 <body>
@@ -15,9 +17,20 @@
         <span class="brand-icon" aria-hidden="true">M</span>
         <span>mini inventario</span>
       </a>
-      <span class="local-badge"><span aria-hidden="true"></span> Guardado en este dispositivo</span>
+      <div class="local-badge"><span id="signed-in-email"></span><button id="sign-out" type="button" hidden>Cerrar sesión</button></div>
     </header>
 
+    <section id="auth-panel" class="form-card auth-card" aria-labelledby="auth-title">
+      <div class="section-heading"><div><p class="eyebrow">ACCESO SEGURO</p><h2 id="auth-title">Tu cuenta</h2></div></div>
+      <form id="auth-form">
+        <label class="field">Correo electrónico<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
+        <label class="field">Contraseña<input name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="72"></label>
+        <div class="form-actions"><button class="button secondary" type="button" id="sign-up">Crear cuenta</button><button class="button primary" type="submit">Iniciar sesión</button></div>
+      </form>
+      <p id="auth-message" class="message" role="alert" aria-live="polite"></p>
+    </section>
+
+    <div id="inventory" hidden>
     <section class="intro" aria-labelledby="page-title">
       <div>
         <p class="eyebrow">CONTROL DE EXISTENCIAS</p>
@@ -57,7 +70,7 @@
 
     <section class="list-card" aria-labelledby="list-title">
       <div class="list-heading">
-        <div><h2 id="list-title">Productos</h2><p id="list-description" class="muted">Todos los artículos registrados en este dispositivo.</p></div>
+      <div><h2 id="list-title">Productos</h2><p id="list-description" class="muted">Los artículos de tu inventario.</p></div>
         <span id="product-count" class="count-pill">0 productos</span>
       </div>
       <div class="table-scroll">
@@ -73,6 +86,7 @@
       </div>
     </section>
     <p id="status-message" class="status-message" role="status" aria-live="polite"></p>
+    </div>
   </main>
 </body>
 </html>

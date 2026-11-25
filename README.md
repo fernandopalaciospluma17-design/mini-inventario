@@ -1,37 +1,30 @@
-# Mini Inventario — Día 3
+# Mini Inventario
 
-Primera versión local de Mini Inventario. Express sirve la página estática y `/health`; los productos se guardan en el `localStorage` del navegador mediante el módulo central `public/productos.js`.
-
-Esta etapa no incluye inicio de sesión, Supabase ni sincronización entre dispositivos. Los datos pertenecen al perfil local del navegador y no quedan vinculados a una cuenta.
-
-## Requisitos
-
-- Node.js 22
-- npm
+Aplicación web de inventario con Express y Supabase Auth/PostgreSQL. Requiere Node.js 22.
 
 ## Iniciar
 
-```bash
-npm install
-npm start
-```
+1. Instala dependencias con `npm install`.
+2. Copia `.env.example` a `.env` y completa `SUPABASE_URL` y `SUPABASE_KEY` con la URL del proyecto y una clave pública `publishable` o `anon`.
+3. Revisa la migración `supabase/migrations/20261125014157_create_productos.sql` y pide aprobación antes de aplicarla al proyecto Supabase.
+4. Ejecuta `npm start` y abre <http://localhost:3000>.
 
-Abre <http://localhost:3000>. Para usar otro puerto, define `PORT` antes de iniciar. El servidor responde en `/health` con `{"status":"ok"}`.
+La aplicación necesita configuración y una tabla aplicada en Supabase. Nunca uses una clave `service_role` o `secret` en `.env` ni en el navegador. `/config.js` solo expone la URL y la clave pública.
 
-Durante el desarrollo usa `npm run dev`; ejecuta las pruebas automatizadas con `npm test`.
+Durante el desarrollo usa `npm run dev`; las pruebas automatizadas se ejecutan con `npm test`.
 
 ## Funciones
 
-- Listar, agregar, editar y eliminar productos.
-- Cada producto tiene nombre, SKU, cantidad y cantidad mínima. El SKU se recorta y se normaliza a mayúsculas; es único en este inventario local.
-- Cantidad y mínimo son enteros de cero a 2 147 483 647. El producto se marca para reponer cuando cantidad es menor que mínimo.
-- Nombre y SKU admiten hasta 120 y 80 caracteres, respectivamente.
-- El acceso a datos está centralizado en `public/productos.js`; la interfaz no usa `localStorage` directamente.
+- Registro, inicio y cierre de sesión con correo y contraseña.
+- Listar, agregar, editar y eliminar productos en Supabase.
+- Cada producto tiene nombre, SKU, cantidad y cantidad mínima. El SKU se recorta y normaliza a mayúsculas; es único por usuario.
+- Cantidad y mínimo son enteros no negativos. Se marca para reponer cuando la cantidad es menor al mínimo.
+- Los productos se aíslan por persona en PostgreSQL con RLS; la interfaz no usa `localStorage` como fuente de inventario.
 
 ## Estructura
 
-- `server.js`: servidor Express, archivos estáticos y health check.
-- `public/index.html`, `public/styles.css`, `public/app.js`: interfaz sin framework.
-- `public/productos.js`: normalización, validación y persistencia local.
+- `server.js`: servidor Express, archivos estáticos, `/health` y configuración pública `/config.js`.
+- `public/`: interfaz y módulos de autenticación/datos.
+- `supabase/migrations/`: esquema, permisos y políticas RLS.
 - `test/`: pruebas con el módulo integrado `node:test`.
-- `docs/`: requisitos del producto y diseño técnico objetivo. La persistencia local y la falta temporal de autenticación son una excepción de etapa documentada en la actividad del Día 3.
+- `entregas/dia-04/README.md`: bitácora, resultados y evidencia pendiente.

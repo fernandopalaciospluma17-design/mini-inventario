@@ -2,73 +2,57 @@
 
 ## Objetivo y decisiones
 
-Aplicación web para que cada persona acceda con Google, administre sus propios productos y detecte productos cuya cantidad sea menor que su mínimo. Express sirve el HTML, CSS y JavaScript sin framework, y expone una API JSON. Supabase proporciona Auth y PostgreSQL.
+Aplicación web para que cada persona se registre e inicie sesión con correo y contraseña, administre sus propios productos y detecte productos cuya cantidad sea menor que su mínimo. Express sirve el HTML, CSS y JavaScript sin framework. Supabase proporciona Auth, la API de datos y PostgreSQL.
 
-El navegador autentica a la persona con Supabase Auth y envía su access token como `Authorization: Bearer <token>` a la API. Express valida el token y usa ese mismo token al consultar la base de datos, de modo que Postgres también aplica Row Level Security (RLS). No se usa una clave `service_role` en el flujo de la aplicación.
+El navegador autentica a la persona con Supabase Auth y consulta `public.productos` con el SDK oficial y una clave pública. PostgreSQL aplica Row Level Security (RLS) en cada solicitud. No se usa una clave `service_role` en la aplicación.
 
-Se conserva Google como proveedor de inicio de sesión, de acuerdo con el alcance acordado anteriormente. La integración OAuth se configura en Supabase Auth; el callback del proveedor vuelve a Supabase y Supabase redirige a la aplicación.
+El alcance del Día 4 usa registro, inicio y cierre de sesión con correo y contraseña. La confirmación de correo depende de la configuración de Supabase Auth.
 
 ## Componentes y flujo
 
 ```text
 Navegador (HTML + JS) ── GET / ──> Express ── sirve /public
         │
-        ├── Supabase Auth: Google OAuth, sesión y cierre de sesión
+        ├── Supabase Auth: correo y contraseña, sesión y cierre de sesión
         │
-        └── API JSON + access token ──> Express ── JWT de usuario ──> Supabase PostgreSQL
-                                                                    ├── Constraints e índices
-                                                                    └── RLS por auth.uid()
+        └── supabase-js + clave pública ──> Supabase Auth / Data API
+                                           └── PostgreSQL: constraints, índices y RLS por auth.uid()
 ```
 
-- **Express:** sirve `public/`, entrega la configuración pública de Supabase y expone las rutas de productos. Puede organizarse en `src/server.js`, `src/routes/products.js`, `src/middleware/auth.js` y `src/lib/supabase.js`.
-- **Cliente web:** HTML semántico, CSS y JavaScript modular, sin framework. El SDK `@supabase/supabase-js` gestiona OAuth y la sesión. La sesión persistida por el SDK permite restaurar la vista al recargar.
-- **Supabase Auth:** gestiona Google OAuth, emisión/renovación de sesión y cierre de sesión. El cliente envía a Express el access token vigente.
+- **Express:** sirve `public/`, el SDK instalado desde `node_modules` y `/config.js`, que publica solo URL y clave pública.
+- **Cliente web:** HTML semántico, CSS y JavaScript modular, sin framework. El SDK `@supabase/supabase-js` gestiona credenciales y sesión. La sesión persistida por el SDK permite restaurar la vista al recargar.
+- **Supabase Auth:** gestiona registro, inicio de sesión con contraseña, emisión/renovación de sesión y cierre de sesión.
 - **PostgreSQL:** guarda los productos y aplica restricciones de integridad, unicidad y aislamiento de filas.
 
-### Flujo de inicio de sesión
+### Flujo de inicio de sesión y consulta de productos
 
 ```mermaid
 sequenceDiagram
     actor Persona
     participant Browser as Navegador (HTML + JS)
-    participant Express
     participant Auth as Supabase Auth
-    participant Google
     participant DB as Supabase PostgreSQL
 
-    Persona->>Browser: Selecciona «Continuar con Google»
-    Browser->>Auth: signInWithOAuth({ provider: google })
-    Auth->>Google: Redirige para autenticación y consentimiento
-    Google-->>Auth: Devuelve el resultado OAuth
-    Auth-->>Browser: Redirige a la aplicación con la sesión
+    Persona->>Browser: Ingresa correo y contraseña
+    Browser->>Auth: signInWithPassword({ email, password })
+    Auth-->>Browser: Devuelve la sesión
     Browser->>Browser: Guarda/restaura la sesión con supabase-js
-    Browser->>Express: GET /api/products + access token
-    Express->>Auth: getUser(access token)
-    Auth-->>Express: Usuario verificado o error de autenticación
-    Express->>DB: Consulta con el JWT del usuario
+    Browser->>DB: Consulta Data API con JWT del usuario
     DB->>DB: RLS limita filas con auth.uid()
-    DB-->>Express: Productos autorizados
-    Express-->>Browser: JSON del inventario
+    DB-->>Browser: Productos autorizados
 ```
 
-Si el token expiró, el SDK intenta renovarlo; la solicitud a la API se envía con el access token vigente. Si no puede obtener una sesión válida, se muestra el acceso y no se llama a la API protegida.
+Si el token expiró, el SDK intenta renovarlo. Si no puede obtener una sesión válida, se muestra el acceso y la tabla no devuelve productos.
 
-### Contrato mínimo de API
+### Operaciones de datos
 
-Todas las rutas `/api` requieren un access token vigente. Los cuerpos JSON de escritura solo admiten `nombre`, `sku`, `cantidad` y `minimo`; el servidor asigna `user_id` y la base asigna `id` y `created_at`.
+El SDK consulta la tabla después de validar campos en el navegador. En los inserts el cliente toma el ID desde la sesión; RLS y `WITH CHECK` aseguran que no se pueda asignar otro propietario. La base asigna `id` y `created_at`.
 
-| Método y ruta | Resultado |
-| --- | --- |
-| `GET /api/products` | Lista los productos de la persona autenticada, ordenados por nombre. Incluye un campo derivado `bajo_minimo` (`cantidad < minimo`). |
-| `POST /api/products` | Crea un producto y devuelve el registro creado. |
-| `PATCH /api/products/:id` | Actualiza nombre, SKU, cantidad y mínimo de un producto propio. |
-| `DELETE /api/products/:id` | Elimina un producto propio; devuelve `204` si se eliminó. |
-
-Respuestas previsibles: `400` para entrada inválida, `401` si falta o no es válido el token, `404` si el registro no existe o no pertenece a la persona, `409` si el SKU ya existe en su inventario y `500` para errores inesperados. Los mensajes públicos no deben incluir tokens, SQL ni detalles internos.
+El SDK lista por nombre y permite insertar, editar y eliminar. Un SKU duplicado se rechaza mediante el índice único de PostgreSQL. El estado de mínimo se deriva en la interfaz (`cantidad < minimo`).
 
 ## Modelo de datos
 
-Una migración SQL crea `public.productos`. Los SKU se normalizan en Express con `trim` y mayúsculas; el índice funcional mantiene la unicidad incluso si otro cliente omite esa normalización. `created_at` representa el alta y no se modifica en una actualización.
+Una migración SQL crea `public.productos`. Los SKU se normalizan en el cliente con `trim` y mayúsculas; el índice funcional mantiene la unicidad aunque otro cliente omita esa normalización. `created_at` representa el alta y no se modifica en una actualización.
 
 ```sql
 create table public.productos (
@@ -110,10 +94,12 @@ erDiagram
 
 ### RLS y permisos
 
-Habilitar RLS y conceder a `authenticated` solo las operaciones necesarias. Crear políticas separadas para lectura, inserción, actualización y eliminación:
+La migración habilita RLS, revoca privilegios de `anon`, concede a `authenticated` las cuatro operaciones de inventario y crea políticas separadas:
 
 ```sql
 alter table public.productos enable row level security;
+revoke all on public.productos from anon;
+grant select, insert, update, delete on public.productos to authenticated;
 
 create policy "Cada persona lee sus productos"
   on public.productos for select to authenticated
@@ -133,37 +119,37 @@ create policy "Cada persona elimina sus productos"
   using ((select auth.uid()) = user_id);
 ```
 
-La API no acepta `user_id` del cuerpo. En altas, Express toma el UUID del usuario autenticado y lo asigna al registro. En consultas y mutaciones la política RLS vuelve a limitar el acceso al propietario, aunque una ruta olvide filtrar por `user_id`.
+En altas, el cliente usa el ID de la sesión de Auth. RLS y `WITH CHECK` garantizan en PostgreSQL que corresponda al usuario autenticado, también si alguien modifica una solicitud desde las herramientas del navegador.
 
 ## Validaciones por capa
 
 | Capa | Validaciones y responsabilidad |
 | --- | --- |
 | Navegador | Comprueba campos requeridos, recorta espacios, limita nombre a 120 caracteres y SKU a 80, y exige enteros no negativos para cantidad y mínimo. Da respuesta inmediata en el formulario, pero no se considera una barrera de seguridad. Muestra como bajo mínimo únicamente si `cantidad < minimo`; la igualdad no alerta. |
-| Supabase Auth | Completa el flujo OAuth de Google, verifica identidad y vigencia de sesión y renueva tokens según el ciclo del SDK. La API rechaza requests sin token vigente. |
-| Express | Valida el esquema y tipos de cada body; rechaza campos extra, strings vacíos tras `trim`, valores no enteros, negativos, `NaN`, `Infinity` y valores fuera del rango de enteros PostgreSQL. Normaliza SKU con `trim().toUpperCase()`. Valida UUID de ruta, limita JSON entrante y no permite que el cliente elija `user_id`, `id` ni `created_at`. Valida el access token con `supabase.auth.getUser(token)` antes de operar. Convierte conflictos de unicidad a `409` y no expone errores internos. |
-| PostgreSQL | `NOT NULL`, checks de texto y cantidades, tipos UUID/integer/timestamptz y FK a `auth.users` protegen la integridad incluso si se omite la API. Índice único por usuario y SKU normalizado impide duplicados concurrentes. RLS filtra y autoriza cada fila usando `auth.uid()`. |
+| Supabase Auth | Completa registro e inicio con correo y contraseña, verifica identidad y vigencia de sesión y renueva tokens según el ciclo del SDK. |
+| Cliente | Normaliza SKU con `trim().toUpperCase()` y obtiene el usuario desde la sesión del SDK; no acepta `user_id` del formulario. La validación del cliente no es una barrera de seguridad. |
+| PostgreSQL | `NOT NULL`, checks de texto y cantidades, tipos UUID/integer/timestamptz y FK a `auth.users` protegen la integridad. Índice único por usuario y SKU normalizado impide duplicados concurrentes. RLS filtra y autoriza cada fila usando `auth.uid()`. |
 
 La cantidad puede ser cero; el mínimo también. El valor exacto del mínimo se considera suficiente y no se marca como bajo. La unicidad del SKU no distingue mayúsculas y minúsculas dentro de una misma cuenta, pero permite repetir un SKU entre cuentas diferentes.
 
 ## Configuración y secretos
 
-- Servidor: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` y `PORT` en variables de entorno. La publishable key no es un secreto; nunca usar la secret/service-role key en navegador ni en las rutas ordinarias de la API.
+- Servidor: `SUPABASE_URL`, `SUPABASE_KEY` y `PORT` en variables de entorno. `SUPABASE_KEY` debe ser una clave pública `publishable` o `anon`; `/config.js` rechaza claves secret y `service_role`.
 - Navegador: Express entrega `SUPABASE_URL` y la publishable key desde una ruta de configuración pública; no expone credenciales privadas.
-- Supabase Dashboard: activar Google en Auth Providers; configurar las credenciales OAuth de Google y permitir en Redirect URLs la URL de callback local y de producción.
+- Supabase Dashboard: configurar confirmación de correo y URLs permitidas según el entorno.
 - Añadir `.env` al ignore de Git. Usar HTTPS en producción y no registrar access tokens ni cuerpos que puedan contener credenciales.
 
 ## Criterios de aceptación técnica
 
-- Una persona sin sesión no puede usar la API ni leer productos desde la API de datos de Supabase.
+- Una persona sin sesión no puede leer productos desde la Data API de Supabase.
 - Dos cuentas distintas pueden crear el mismo SKU, pero una cuenta no puede repetirlo con diferencias de mayúsculas o espacios.
 - Intentos de lectura, actualización o eliminación cruzados entre usuarios no revelan ni modifican los registros ajenos.
-- Valores vacíos, negativos, fraccionarios, no numéricos o fuera de rango son rechazados en la API; las constraints de PostgreSQL mantienen la misma integridad.
+- Valores vacíos, negativos, fraccionarios, no numéricos o fuera de rango se rechazan en el cliente; las constraints de PostgreSQL mantienen la integridad crítica.
 - Al guardar cambios, el estado derivado de bajo mínimo se actualiza; `cantidad = minimo` no queda marcado.
 - La eliminación de una cuenta de Auth elimina sus productos mediante la FK con `on delete cascade`.
 
 ## Referencias
 
-- [Supabase Auth: Google](https://supabase.com/docs/guides/auth/social-login/auth-google)
+- [Supabase Auth: registro con correo](https://supabase.com/docs/reference/javascript/auth-signup)
 - [Supabase JavaScript: obtener usuario autenticado](https://supabase.com/docs/reference/javascript/auth-getuser)
 - [Supabase: Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
