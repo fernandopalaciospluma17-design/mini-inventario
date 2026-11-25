@@ -111,4 +111,4 @@ El borrador generado con la skill omitió su caso negativo obligatorio. Se detec
 
 ## 13. Pull request
 
-Pendiente. La rama base elegida es `main`, que ya contiene la aplicación actual. No se hará merge.
+PR abierto: [#12 — Mini Inventario Día 7: skill de pruebas y subagente revisor](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/12). Base `main`; no se ha hecho merge.
