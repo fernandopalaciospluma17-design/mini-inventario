@@ -9,10 +9,14 @@
   "scripts": {
     "start": "node --env-file-if-exists=.env server.js",
     "dev": "node --env-file-if-exists=.env --watch server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.119.2",
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
   }
 }

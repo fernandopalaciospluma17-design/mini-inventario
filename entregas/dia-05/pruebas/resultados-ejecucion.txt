@@ -1,0 +1,17 @@
+Comprobación de unidad, ejecutada con Node.js 22.23.5:
+Comando: npm exec --yes --package=node@22 -- node --test
+Resultado: 7 pruebas, 7 aprobadas, 0 fallidas, 0 omitidas.
+
+Playwright Test, ejecutado después de que TEST_EMAIL y TEST_PASSWORD estuvieran presentes en .env:
+Comando: npx playwright test
+Resultado: 4 pruebas, 1 aprobada, 3 fallidas, 0 omitidas; duración informada: 28.3 s.
+- Aprobada: rechazo de contraseña incorrecta; permaneció visible el panel de acceso y oculto el inventario.
+- Fallida: inicio de sesión esperado correcto; el inventario permaneció oculto.
+- Fallida: alta de producto; no se pudo establecer la sesión requerida.
+- Fallida: detección de stock bajo; no se pudo establecer la sesión requerida.
+
+Las cuatro variables requeridas fueron comprobadas por presencia únicamente; sus valores no se imprimieron. El MCP siguió reportando cero tablas en public, por lo que no se verificó CRUD real ni el estado de los productos en Supabase. No se creó ningún producto ni se eliminaron datos existentes.
+
+Primer intento de Playwright Test, antes de la ejecución de los cuatro casos: abortó porque un servidor Node.js de diagnóstico iniciado en esta sesión seguía escuchando en el puerto 3000. Se identificó por su línea de comando, se detuvo ese proceso y se repitió la suite; el resultado registrado arriba corresponde a la ejecución completa posterior.
+
+Mutación de stock bajo mínimo: no ejecutada. Sin sesión de usuario ni tabla de productos no se puede demostrar honestamente que una mutación falle y luego pase tras revertirse.
