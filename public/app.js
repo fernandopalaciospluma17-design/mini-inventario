@@ -153,7 +153,10 @@ function signUpErrorMessage(error) {
   if (error?.code === 'email_provider_disabled') return 'El registro por correo está desactivado en Supabase. Contacta a quien administra el proyecto.';
   if (error?.code === 'weak_password') return 'La contraseña es demasiado sencilla. Elige otra de al menos 8 caracteres.';
   if (error?.code === 'over_email_send_rate_limit') return 'Se enviaron demasiados correos. Espera un momento e inténtalo de nuevo.';
-  return 'No se pudo crear la cuenta. Revisa el correo y la contraseña e inténtalo de nuevo.';
+  if (error?.code === 'user_already_exists' || error?.code === 'email_exists') return 'Ese correo podría tener ya una cuenta. Si no tienes su contraseña, prueba con otro correo propio que no hayas registrado.';
+  if (error?.code === 'email_address_invalid' || error?.code === 'validation_failed') return 'Revisa que el correo sea válido y que la contraseña tenga al menos 8 caracteres.';
+  if (error?.status === 429) return 'Se hicieron demasiados intentos. Espera un momento antes de probar otra vez.';
+  return 'No se pudo crear la cuenta. Revisa que el correo sea válido, que puedas acceder a él y que la contraseña tenga al menos 8 caracteres.';
 }
 
 function showSession(session) {
