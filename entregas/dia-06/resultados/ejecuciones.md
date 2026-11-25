@@ -19,4 +19,5 @@ Playwright generó `playwright-report/` y `test-results/`. Ambas carpetas están
 - Primer run verde: 45543432373, SHA `e790bc2123b224300ebfa08711c732b50d77da61`.
 - Resultado: job Playwright exitoso; artifact upload exitoso.
 - Run: https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373
+- Validación posterior de las versiones actuales de las acciones: run 45544049699, SHA `e3118c382f50375c8b137b4ebc79b485727a1e72`, verde y sin advertencia Node 20. https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544049699
 - Demostración roja y run verde final: pendientes; no se registran enlaces ficticios.

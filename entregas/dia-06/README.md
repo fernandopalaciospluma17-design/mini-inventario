@@ -34,7 +34,8 @@ PR: [#11 — Día 6: automatizar pruebas con GitHub Actions](https://github.com/
 - Run: [45543432373 — exitoso](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373).
 - Resultado: job `Playwright tests` terminó en verde; instalación, pruebas y subida del artefacto HTML terminaron correctamente.
 - La suite contiene cuatro escenarios; además, los cuatro pasaron localmente con Node 22.
-- Este primer run usó las versiones v4 de las acciones y GitHub avisó que sus runtime Node 20 se estaban ejecutando sobre Node 24. Después se actualizaron a versiones oficiales con runtime Node 24; se registrará el run que valide esa actualización.
+- Este primer run usó las versiones v4 de las acciones y GitHub avisó que sus runtime Node 20 se estaban ejecutando sobre Node 24. Después se actualizaron a versiones oficiales con runtime Node 24 y se validaron en un segundo run.
+- Validación con las acciones actualizadas: [run 45544049699 — exitoso](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544049699), SHA `e3118c382f50375c8b137b4ebc79b485727a1e72`. Las pruebas y la publicación del artefacto pasaron, sin la advertencia de runtime Node 20.
 - Captura: [`evidencias/pr-verde-inicial.png`](evidencias/pr-verde-inicial.png).
 
 ## 6. Demostración roja

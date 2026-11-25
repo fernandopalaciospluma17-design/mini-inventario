@@ -13,7 +13,7 @@ Los cuatro secretos se referencian únicamente como `secrets.*` en el paso de pr
 - PR: https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/11
 - Run remoto inicial verde (SHA `e790bc2123b224300ebfa08711c732b50d77da61`, 4/4 pruebas): https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373
 - El artefacto Playwright se publicó correctamente.
-- Se actualizaron las acciones después de que el primer run mostrara la advertencia de runtime Node 20; el nuevo run que valida las versiones actuales está pendiente.
+- El primer run avisó que las acciones v4 usaban Node 20. Se actualizaron a las versiones actuales con runtime Node 24; la validación pasó en el run 45544049699 (SHA `e3118c382f50375c8b137b4ebc79b485727a1e72`): https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544049699
 - Runs rojo y verde final: pendientes de la demostración controlada y autorización expresa.
 
 ## Limitaciones
