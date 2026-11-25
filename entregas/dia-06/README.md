@@ -20,10 +20,10 @@ GitHub muestra los nombres `SUPABASE_URL`, `SUPABASE_KEY`, `TEST_EMAIL` y `TEST_
 Archivo: `.github/workflows/ci.yml`.
 
 - Se activa con `pull_request` hacia `main`.
-- Usa `ubuntu-latest`, Node.js 22, `npm ci` y Chromium con sus dependencias.
+- Usa `ubuntu-latest`, `actions/checkout@v7`, `actions/setup-node@v7`, Node.js 22, `npm ci` y Chromium con sus dependencias.
 - Ejecuta `npx playwright test` y falla si una prueba falla.
 - Proporciona los cuatro secretos solo al paso de Playwright.
-- Publica `playwright-report/` y `test-results/` como artefacto incluso si falla el job.
+- Publica `playwright-report/` y `test-results/` como artefacto con `actions/upload-artifact@v6`, incluso si falla el job.
 - El workflow tiene permiso `contents: read` y no requiere `.env`.
 
 ## 5. Primera ejecución verde
@@ -34,6 +34,7 @@ PR: [#11 — Día 6: automatizar pruebas con GitHub Actions](https://github.com/
 - Run: [45543432373 — exitoso](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373).
 - Resultado: job `Playwright tests` terminó en verde; instalación, pruebas y subida del artefacto HTML terminaron correctamente.
 - La suite contiene cuatro escenarios; además, los cuatro pasaron localmente con Node 22.
+- Este primer run usó las versiones v4 de las acciones y GitHub avisó que sus runtime Node 20 se estaban ejecutando sobre Node 24. Después se actualizaron a versiones oficiales con runtime Node 24; se registrará el run que valide esa actualización.
 - Captura: [`evidencias/pr-verde-inicial.png`](evidencias/pr-verde-inicial.png).
 
 ## 6. Demostración roja

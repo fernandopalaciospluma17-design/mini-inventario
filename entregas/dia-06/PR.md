@@ -2,7 +2,7 @@
 
 ## Resumen
 
-Se añade `.github/workflows/ci.yml` para ejecutar Playwright en cada Pull Request hacia `main`. El workflow usa Ubuntu, Node.js 22, `npm ci`, Chromium y publica el reporte HTML junto con `test-results/` incluso si el job falla.
+Se añade `.github/workflows/ci.yml` para ejecutar Playwright en cada Pull Request hacia `main`. El workflow usa Ubuntu, `actions/checkout@v7`, `actions/setup-node@v7`, Node.js 22, `npm ci`, Chromium y `actions/upload-artifact@v6` para publicar el reporte HTML junto con `test-results/` incluso si el job falla.
 
 Los cuatro secretos se referencian únicamente como `secrets.*` en el paso de pruebas. No se incluyen valores ni archivos `.env`.
 
@@ -13,6 +13,7 @@ Los cuatro secretos se referencian únicamente como `secrets.*` en el paso de pr
 - PR: https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/11
 - Run remoto inicial verde (SHA `e790bc2123b224300ebfa08711c732b50d77da61`, 4/4 pruebas): https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373
 - El artefacto Playwright se publicó correctamente.
+- Se actualizaron las acciones después de que el primer run mostrara la advertencia de runtime Node 20; el nuevo run que valida las versiones actuales está pendiente.
 - Runs rojo y verde final: pendientes de la demostración controlada y autorización expresa.
 
 ## Limitaciones
