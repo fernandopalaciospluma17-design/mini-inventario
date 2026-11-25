@@ -28,7 +28,7 @@ La aplicación real está en la raíz y en `public/`. Al comparar las instruccio
 - Pedido con skill: `Usa $pruebas-inventario. Escribe una prueba de Playwright para editar un producto en Mini Inventario.`
 - Creación de la skill: se siguió el frontmatter y los diez grupos de reglas definidos en `docs/INSTRUCCIONES_CODEX_DIA_07_MINI_INVENTARIO.md`, adaptando almacenamiento y seguridad al código actual.
 - Creación del revisor: se siguió el ejemplo `revisor-pr.toml` del mismo documento y se añadió una política explícita de solo lectura.
-- Ejecución del revisor: se documentará el prompt exacto y el comando usados cuando concluya esa fase.
+- Ejecución del revisor: se hizo en sesión limpia y con sandbox de solo lectura. La invocación explícita, el alcance y sus resultados están en la sección 6.
 
 ## 4. Comparación sin skill y con skill
 

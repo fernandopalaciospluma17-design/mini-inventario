@@ -4,7 +4,7 @@
 
 - Añade `.agents/skills/pruebas-inventario/SKILL.md` con reglas de Playwright adaptadas al código actual, que usa Supabase Auth/PostgreSQL y no `localStorage`.
 - Añade pruebas E2E para editar producto correctamente y rechazar un SKU duplicado. El cliente Supabase está simulado, los datos son sintéticos y el cleanup borra solo los productos del test por la UI.
-- Guarda las referencias sin/con skill y evalúa sus diferencias en `entregas/dia-07/README.md`. La respuesta con skill omitió el caso negativo; quedó añadido a la prueba ejecutable.
+- Guarda las referencias sin/con skill y evalúa sus diferencias en `entregas/dia 7/README.md`. La respuesta con skill omitió el caso negativo; quedó añadido a la prueba ejecutable.
 - Añade `.codex/agents/revisor-pr.toml` con instrucciones de solo lectura; el subagente revisó el diff y el estado/hashes antes y después coinciden.
 - Hace que la configuración existente de Playwright use el `PORT` que ya acepta el servidor para evitar depender del puerto 3000 ocupado.
 
@@ -23,4 +23,4 @@ La prueba nueva valida interfaz y lógica del store con un cliente simulado; no 
 
 ## Entrega
 
-Bitácora: [`entregas/dia-07/README.md`](entregas/dia-07/README.md).
+Bitácora: [entregas/dia 7/README.md](<entregas/dia 7/README.md>).
