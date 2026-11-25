@@ -7,6 +7,8 @@ try {
   if (error.code !== 'ENOENT') throw error;
 }
 
+const port = Number(process.env.PORT || 3000);
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
@@ -18,7 +20,7 @@ export default defineConfig({
   expect: { timeout: 7_500 },
   use: {
     ...devices['Desktop Chrome'],
-    baseURL: 'http://localhost:3000',
+    baseURL: `http://localhost:${port}`,
     trace: 'off',
     screenshot: 'off',
     video: 'off',
@@ -26,7 +28,7 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'npm exec --yes --package=node@22 -- node --env-file-if-exists=.env server.js',
-    url: 'http://localhost:3000/health',
+    url: `http://localhost:${port}/health`,
     reuseExistingServer: false,
     timeout: 30_000,
   },
