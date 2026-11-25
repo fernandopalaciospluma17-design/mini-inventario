@@ -14,6 +14,7 @@
 - `npm exec --yes --package=node@22 -- npm test`: 7 aprobadas.
 - `$env:PORT='3107'; npm exec --yes --package=node@22 -- node node_modules/@playwright/test/cli.js test tests/productos-edicion.spec.js`: 2 aprobadas con Chromium.
 - `git diff --cached --check`: sin errores.
+- El PR no reporta checks de GitHub porque la rama base `main` todavía no contiene un workflow de CI.
 - No se usaron credenciales ni se escribieron o eliminaron datos en Supabase real. La suite E2E existente que usa cuenta real no se ejecutó.
 
 ## Límites
