@@ -105,4 +105,4 @@ El código local y la migración están preparados, y las pruebas automatizadas 
 
 ## 12. Pull Request
 
-Pendiente de publicar.
+[PR #9 — Día 4: integración de Supabase, autenticación y RLS](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/9), abierto hacia `main`. El PR incluye el código de Día 3 porque `main` aún no lo contiene; el PR #8 del Día 3 permanece abierto.
