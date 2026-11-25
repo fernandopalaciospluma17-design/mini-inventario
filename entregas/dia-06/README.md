@@ -28,7 +28,13 @@ Archivo: `.github/workflows/ci.yml`.
 
 ## 5. Primera ejecución verde
 
-Pendiente de que GitHub Actions complete el primer run del PR. Se añadirá aquí el enlace, SHA y resultado observados.
+PR: [#11 — Día 6: automatizar pruebas con GitHub Actions](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/11).
+
+- SHA: `e790bc2123b224300ebfa08711c732b50d77da61`.
+- Run: [45543432373 — exitoso](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373).
+- Resultado: job `Playwright tests` terminó en verde; instalación, pruebas y subida del artefacto HTML terminaron correctamente.
+- La suite contiene cuatro escenarios; además, los cuatro pasaron localmente con Node 22.
+- Captura: [`evidencias/pr-verde-inicial.png`](evidencias/pr-verde-inicial.png).
 
 ## 6. Demostración roja
 
@@ -56,15 +62,17 @@ Pendiente de la autorización y ejecución de la demostración roja.
 
 ## 11. Evidencias
 
+- Run inicial: [45543432373](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373).
+- Captura del PR y check verde: `evidencias/pr-verde-inicial.png`.
 - Reporte HTML local: generado en `playwright-report/` (ignorado por Git; no contiene valores de secretos).
-- Run remoto y capturas: pendientes de la ejecución inicial en GitHub Actions.
+- El artefacto `playwright-report` se subió en el run inicial.
 
 ## 12. Limitaciones
 
-- Aún no existe una ejecución remota del workflow ni se creó el PR del Día 6.
+- La ejecución inicial ya está verde. La demostración roja y la ejecución verde final siguen pendientes.
 - La demostración roja y la ejecución verde final dependen de autorización expresa para introducir y revertir la mutación temporal.
 - Los secretos están presentes por nombre; GitHub no permite comprobar sus valores.
 
 ## 13. Pull Request y cierre
 
-PR del Día 6: pendiente de publicación y de su primera ejecución en GitHub Actions.
+PR abierto: [#11](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/11). El merge final queda pendiente de autorización expresa.

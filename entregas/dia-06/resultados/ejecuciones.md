@@ -15,4 +15,8 @@ Playwright generó `playwright-report/` y `test-results/`. Ambas carpetas están
 
 ## GitHub Actions
 
-El run remoto inicial, la demostración roja y el run verde final se añadirán cuando existan. No se registran enlaces ni capturas ficticios.
+- PR #11: https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/11
+- Primer run verde: 45543432373, SHA `e790bc2123b224300ebfa08711c732b50d77da61`.
+- Resultado: job Playwright exitoso; artifact upload exitoso.
+- Run: https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373
+- Demostración roja y run verde final: pendientes; no se registran enlaces ficticios.

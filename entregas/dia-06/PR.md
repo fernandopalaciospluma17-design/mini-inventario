@@ -10,9 +10,11 @@ Los cuatro secretos se referencian únicamente como `secrets.*` en el paso de pr
 
 - Comando local: `npm exec --yes --package=node@22 -- node node_modules/@playwright/test/cli.js test`.
 - Resultado local más reciente: 4 pruebas aprobadas.
-- Run remoto inicial: pendiente de GitHub Actions.
+- PR: https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/11
+- Run remoto inicial verde (SHA `e790bc2123b224300ebfa08711c732b50d77da61`, 4/4 pruebas): https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373
+- El artefacto Playwright se publicó correctamente.
 - Runs rojo y verde final: pendientes de la demostración controlada y autorización expresa.
 
 ## Limitaciones
 
-El mismo PR deberá mostrar una ejecución verde inicial, una roja causada por la mutación intencional y una verde final. No se afirma que esos runs existan todavía.
+El PR ya tiene su primera ejecución verde. La demostración roja y la ejecución verde final todavía no existen; requieren autorización expresa antes de introducir la mutación temporal.
