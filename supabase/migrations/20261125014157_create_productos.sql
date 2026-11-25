@@ -13,7 +13,7 @@ create unique index productos_user_sku_unique
   on public.productos (user_id, upper(btrim(sku)));
 
 alter table public.productos enable row level security;
-revoke all on public.productos from anon;
+revoke all on table public.productos from anon, authenticated;
 grant select, insert, update, delete on public.productos to authenticated;
 
 create policy "Cada persona lee sus productos"

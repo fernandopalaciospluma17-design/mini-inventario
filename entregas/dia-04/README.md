@@ -27,7 +27,7 @@ La actividad pide correo y contraseña, mientras que el diseño previo mencionab
 - `.env.example` define `SUPABASE_URL`, `SUPABASE_KEY` y `PORT` sin valores reales. El servidor carga `.env` con la opción de Node `--env-file-if-exists`.
 - `/config.js` publica solo URL y clave pública; falla con 503 si falta configuración y rechaza claves `sb_secret_` o un JWT `service_role`.
 - Skills solicitadas instaladas: `.agents/skills/supabase/SKILL.md` y `.agents/skills/supabase-postgres-best-practices/SKILL.md`.
-- MCP de Supabase: **pendiente**. No hubo herramienta MCP de Supabase disponible ni se proporcionó el Project Ref, así que no se configuró un servidor ni se consultó un proyecto.
+- MCP de Supabase: configurado en Codex con el alcance `project_ref=dstksngwmveeuyhcoaga` y OAuth autorizado. `codex mcp list` muestra el servidor habilitado y autenticado; `get_project_url` devolvió `https://dstksngwmveeuyhcoaga.supabase.co`. `list_tables` para `public` devolvió una lista vacía. Las consultas `execute_sql` de solo lectura a catálogos fueron bloqueadas con “MCP tool call requires approval, but approval policy is never”; por tanto no se confirmó con SQL si la tabla ya existe ni sus privilegios.
 
 ## 5. Diseño de la base de datos
 
@@ -47,13 +47,13 @@ Se crea un índice por `user_id` y un índice único por `(user_id, upper(btrim(
 
 ## 6. Seguridad RLS
 
-RLS hace que PostgreSQL evalúe quién puede leer o modificar cada fila. `auth.uid()` devuelve el ID de la persona autenticada en la solicitud. La política `SELECT` permite leer filas propias; `INSERT` revisa el propietario con `WITH CHECK`; `UPDATE` limita tanto la fila original (`USING`) como el resultado (`WITH CHECK`); `DELETE` solo permite borrar filas propias. La migración revoca privilegios de `anon` y concede las operaciones necesarias a `authenticated`.
+RLS hace que PostgreSQL evalúe quién puede leer o modificar cada fila. `auth.uid()` devuelve el ID de la persona autenticada en la solicitud. La política `SELECT` permite leer filas propias; `INSERT` revisa el propietario con `WITH CHECK`; `UPDATE` limita tanto la fila original (`USING`) como el resultado (`WITH CHECK`); `DELETE` solo permite borrar filas propias. La migración revoca los privilegios iniciales de `anon` y `authenticated`, y concede a `authenticated` solo las cuatro operaciones necesarias.
 
 Fragmento de la migración:
 
 ```sql
 alter table public.productos enable row level security;
-revoke all on public.productos from anon;
+revoke all on table public.productos from anon, authenticated;
 grant select, insert, update, delete on public.productos to authenticated;
 
 create policy "Cada persona actualiza sus productos"
@@ -81,8 +81,9 @@ Comando ejecutado: `npm exec --yes --package=node@22 -- node --test` con Node `v
 | `/config.js` sin configuración | Error claro, no HTML con 200 | 503 y mensaje de texto | Aprobada |
 | `/config.js` configurado | JavaScript solo con URL y clave pública | Content-Type correcto y valores esperados | Aprobada |
 | Clave secret o JWT `service_role` | No exponer ni aceptar | 503 sin revelar la clave | Aprobada |
-| Inicio/registro/cierre con Supabase real | Sesiones funcionales | Sin proyecto ni cuentas disponibles | Pendiente |
-| CRUD real y recarga | Cambios persistentes | Sin conexión al proyecto | Pendiente |
+| Inicio/registro/cierre con Supabase real | Sesiones funcionales | MCP autenticado, pero la herramienta no está cargada en esta sesión; no se han creado cuentas | Pendiente |
+| CRUD real y recarga | Cambios persistentes | No ejecutado contra el proyecto | Pendiente |
+| Pruebas pgTAP de RLS | Aislamiento, operaciones cruzadas y grants limitados | Preparadas en `supabase/tests/productos_rls_test.sql`; no se ejecutaron porque no hay base local (Docker no está iniciado) | Pendiente |
 | Aislamiento entre usuarios A y B y pruebas negativas RLS | Cada cuenta ve solo sus filas; operaciones cruzadas bloqueadas | No ejecutado | Pendiente |
 
 Resultado total automatizado: **7 pruebas aprobadas, 0 fallidas**. Las pruebas no demuestran el comportamiento de RLS en una base real.
@@ -96,12 +97,12 @@ No se generaron capturas, porque no existen cuentas Supabase conectadas. La list
 - **Prompt principal:** «haz lo que pide el archivo .md de actividad dia 4 que esta en la carpeta docs».
 - **Instrucción de la actividad aplicada:** conservar la aplicación existente, integrar Supabase, usar RLS, probar aislamiento y no inventar resultados ni credenciales.
 - **Revisión crítica:** el diseño anterior decía Google OAuth y API en Express, pero la actividad vigente exige correo y contraseña. Se detectó al comparar `docs/diseno.md` con la lista de requisitos y se actualizó el diseño para describir la implementación del Día 4.
-- **MCP/SQL:** no hubo una operación MCP aprobada o rechazada. No se ejecutó SQL ni se modificó una base de datos. La conexión no está disponible y se necesita el Project Ref. La migración se preparó y requiere revisión y aprobación antes de aplicarla.
+- **MCP/SQL:** el usuario proporcionó el Project Ref y autorizó aplicar la migración. Codex configuró el servidor limitado a ese proyecto y OAuth quedó autorizado. La herramienta MCP no se cargó en la sesión activa, por lo que no se consultó ni modificó la base. Al revisar la documentación actual de RLS se agregó la revocación de permisos iniciales de ambos roles cliente (`anon` y `authenticated`) antes de conceder solo CRUD. Esta versión ajustada requiere confirmación explícita antes de ejecutarse.
 - **Verificación:** se revisaron las instrucciones instaladas de Supabase y PostgreSQL, se ejecutaron siete pruebas automatizadas y se comprobó que `/config.js` rechaza claves secretas.
 
 ## 11. Conclusión
 
-El código local y la migración están preparados, y las pruebas automatizadas pasan bajo Node 22. La integración funcional con un proyecto real, el estado de RLS, las sesiones A/B, las capturas y el MCP quedan pendientes porque falta el Project Ref y la autorización para aplicar el SQL. La rama parte de `dia-03-web` ya que `main` no contiene la aplicación del Día 3.
+El código local y la migración están preparados, y las pruebas automatizadas pasan bajo Node 22. El MCP quedó autenticado y limitado al Project Ref, pero la política actual de Codex bloquea las herramientas SQL que requieren aprobación. La tabla real, las sesiones A/B, las capturas y las pruebas RLS siguen pendientes. La rama parte de `dia-03-web` ya que `main` no contiene la aplicación del Día 3.
 
 ## 12. Pull Request
 

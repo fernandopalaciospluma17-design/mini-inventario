@@ -94,11 +94,11 @@ erDiagram
 
 ### RLS y permisos
 
-La migración habilita RLS, revoca privilegios de `anon`, concede a `authenticated` las cuatro operaciones de inventario y crea políticas separadas:
+La migración habilita RLS, revoca los privilegios iniciales de `anon` y `authenticated`, concede a `authenticated` solo las cuatro operaciones de inventario y crea políticas separadas:
 
 ```sql
 alter table public.productos enable row level security;
-revoke all on public.productos from anon;
+revoke all on table public.productos from anon, authenticated;
 grant select, insert, update, delete on public.productos to authenticated;
 
 create policy "Cada persona lee sus productos"
