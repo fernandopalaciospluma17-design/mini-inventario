@@ -183,4 +183,7 @@ Resultados:
 
 ## 10. Enlace al PR
 
-Se completa cuando exista el PR real. No se afirma una URL antes de crear el remoto.
+Pull Request: https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/13
+
+- Rama origen: `dia-08-mcp`
+- Rama destino: `dia-07-skill`
