@@ -149,6 +149,20 @@ function setAuthBusy(busy) {
   signUpButton.disabled = busy;
 }
 
+function signUpErrorMessage(error) {
+  if (error?.code === 'anonymous_provider_disabled') return 'Escribe tu correo y una contraseña nueva para crear la cuenta.';
+  if (error?.code === 'email_provider_disabled') return 'El registro por correo está desactivado en Supabase. Contacta a quien administra el proyecto.';
+  if (error?.code === 'weak_password') return 'La contraseña es demasiado sencilla. Elige otra de al menos 8 caracteres.';
+  if (error?.code === 'over_email_send_rate_limit') return 'Se enviaron demasiados correos. Espera un momento e inténtalo de nuevo.';
+  if (error?.code === 'user_already_exists' || error?.code === 'email_exists') return 'Ese correo podría tener ya una cuenta. Si no tienes su contraseña, prueba con otro correo propio que no hayas registrado.';
+  if (error?.code === 'email_address_invalid' || error?.code === 'validation_failed') return 'Revisa que el correo sea válido y que la contraseña tenga al menos 8 caracteres.';
+  if (error?.status === 429) return 'Se hicieron demasiados intentos. Espera un momento antes de probar otra vez.';
+  if (error?.status === 401 || error?.status === 403) return 'Supabase rechazó la configuración de acceso. Revisa que la URL y la clave pública sean del mismo proyecto.';
+  if (error?.status === 400 || error?.status === 422) return 'Supabase rechazó los datos. Revisa el correo y la contraseña; ese correo podría estar registrado.';
+  if (typeof error?.status === 'number' && error.status >= 500) return 'Supabase no pudo completar el registro ahora. Espera un momento e inténtalo otra vez.';
+  return 'No se pudo crear la cuenta. Revisa que el correo sea válido, que puedas acceder a él y que la contraseña tenga al menos 8 caracteres.';
+}
+
 function showSession(session) {
   const signedIn = Boolean(session);
   authPanel.hidden = signedIn;
@@ -164,12 +178,15 @@ function showSession(session) {
 
 authForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  const email = authForm.elements.email.value.trim();
+  const password = authForm.elements.password.value;
+  authForm.elements.password.autocomplete = 'current-password';
   setAuthBusy(true);
   setMessage(authMessage, 'Iniciando sesión…');
-  const { email, password } = Object.fromEntries(new FormData(authForm));
   try {
     const { error } = await client.auth.signInWithPassword({ email, password });
-    if (error) setMessage(authMessage, 'No se pudo iniciar sesión. Revisa el correo y la contraseña e inténtalo de nuevo.', 'error');
+    if (error?.code === 'validation_failed') setMessage(authMessage, 'Escribe tu correo y contraseña para iniciar sesión.', 'error');
+    else if (error) setMessage(authMessage, 'No se pudo iniciar sesión. Revisa el correo y la contraseña e inténtalo de nuevo.', 'error');
     else setMessage(authMessage, 'Sesión iniciada.', 'success');
   } catch {
     setMessage(authMessage, 'No se pudo conectar con Supabase. Revisa tu conexión e inténtalo de nuevo.', 'error');
@@ -179,13 +196,24 @@ authForm.addEventListener('submit', async (event) => {
 });
 
 signUpButton.addEventListener('click', async () => {
-  if (!authForm.reportValidity()) return;
+  const emailInput = authForm.elements.email;
+  const passwordInput = authForm.elements.password;
+  passwordInput.autocomplete = 'new-password';
+  if (!authForm.checkValidity()) {
+    if (!emailInput.value.trim()) setMessage(authMessage, 'Escribe tu correo para crear la cuenta.', 'error');
+    else if (!emailInput.validity.valid) setMessage(authMessage, 'Escribe un correo válido.', 'error');
+    else if (!passwordInput.value) setMessage(authMessage, 'Elige una contraseña nueva de al menos 8 caracteres.', 'error');
+    else if (passwordInput.validity.tooShort) setMessage(authMessage, 'La contraseña debe tener al menos 8 caracteres.', 'error');
+    authForm.reportValidity();
+    return;
+  }
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
   setAuthBusy(true);
   setMessage(authMessage, 'Creando cuenta…');
-  const { email, password } = Object.fromEntries(new FormData(authForm));
   try {
     const { data, error } = await client.auth.signUp({ email, password });
-    if (error) setMessage(authMessage, 'No se pudo crear la cuenta. Revisa los datos e inténtalo de nuevo.', 'error');
+    if (error) setMessage(authMessage, signUpErrorMessage(error), 'error');
     else if (!data.session) setMessage(authMessage, 'Cuenta creada. Revisa tu correo para confirmarla y después inicia sesión.', 'success');
     else setMessage(authMessage, 'Cuenta creada y sesión iniciada.', 'success');
   } catch {

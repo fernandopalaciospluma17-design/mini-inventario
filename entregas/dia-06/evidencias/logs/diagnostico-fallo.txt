@@ -1,0 +1,20 @@
+Diagnóstico del run rojo 45544687631
+PR: https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/11
+Commit de mutación: 51346adeb856c6b54d58f9cf534ac27108749b2a
+
+Comandos usados:
+- gh pr checks 11
+- gh run view 45544687631 --log-failed
+
+Job: Playwright tests
+Paso fallido: Run Playwright tests
+Prueba fallida: marca como bajo mínimo un producto con cantidad menor al mínimo
+Ubicación: tests/inventory.spec.js:104
+
+La mutación cambió la expectativa de “Por debajo del mínimo” a “Suficiente”.
+El log mostró que se esperaba “Suficiente” y que la fila contenía “Por debajo del mínimo”.
+Los otros tres tests pasaron; la subida del reporte también terminó correctamente.
+La falla se debe a la expectativa invertida, no al workflow ni a un fallo externo.
+La prueba limpia su propio producto en el bloque finally. No se incluyen valores de secretos.
+
+Run: https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544687631
