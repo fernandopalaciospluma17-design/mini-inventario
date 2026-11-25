@@ -56,11 +56,16 @@ PR: [#11 — Día 6: automatizar pruebas con GitHub Actions](https://github.com/
 
 ## 8. Corrección y ejecución verde final
 
-Pendiente de autorización para revertir únicamente la expectativa temporal. No se ha corregido todavía; el PR permanece rojo en el commit de mutación.
+Con autorización expresa, se restauró únicamente la expectativa original `Por debajo del mínimo` en `tests/inventory.spec.js`.
+
+- Commit de corrección: `b9f6fc5b74b690548cb4120c15d2bd8d7008ac5b`.
+- Verificación local: prueba puntual y suite completa aprobadas (4/4).
+- Run final: [45546572374 — exitoso](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45546572374). El test y la carga del artefacto terminaron correctamente.
+- Captura: [`evidencias/pr-verde-final.png`](evidencias/pr-verde-final.png).
 
 ## 9. Explicación de la falla en mis palabras
 
-**Borrador para revisión del estudiante:** el cambio temporal hizo que el test esperara “Suficiente” para un producto con cantidad 1 y mínimo 5. GitHub Actions falló en esa aserción porque la app mostró “Por debajo del mínimo”, que es el resultado correcto. `gh run view --log-failed` mostró el texto esperado y el recibido. Al restaurar la expectativa original, la prueba debería pasar; la corrección está pendiente de aprobación. Adáptalo con tus propias palabras antes de entregar.
+**Borrador para revisión del estudiante:** el cambio temporal hizo que el test esperara “Suficiente” para un producto con cantidad 1 y mínimo 5. GitHub Actions falló en esa aserción porque la app mostró “Por debajo del mínimo”, que es el resultado correcto. `gh run view --log-failed` mostró el texto esperado y el recibido. Al restaurar la expectativa original, la prueba y el workflow volvieron a pasar. Adáptalo con tus propias palabras antes de entregar.
 
 ## 10. Bitácora de IA
 
@@ -68,7 +73,7 @@ Pendiente de autorización para revertir únicamente la expectativa temporal. No
 - Hallazgo y corrección: inspeccionando el payload de registro se encontró que `FormData` omitía correo y contraseña. Se movió la lectura antes de deshabilitar los controles.
 - Error de diagnóstico corregido: inicialmente se atribuyó el rechazo a las credenciales; la petición de Supabase mostró que faltaban los campos, y una intercepción local confirmó el problema sin crear una cuenta.
 - Verificación: intercepción de las solicitudes de registro e inicio confirmó presencia de ambos campos; la suite completa pasó localmente con 4/4 pruebas.
-- Mutación controlada autorizada: una sola expectativa de stock bajo se invirtió, falló localmente y en GitHub por la diferencia prevista; la corrección aún no se aplica.
+- Mutación controlada autorizada: se invirtió una expectativa, falló localmente y en GitHub por la diferencia prevista; luego se restauró con autorización y la suite pasó localmente y en GitHub.
 - Seguridad: la ejecución de `execute_sql` fue bloqueada anteriormente por la política de aprobación `never`; no se intentó eludir esa restricción. Las pruebas E2E actuales verifican que el usuario de prueba pudo realizar las operaciones previstas en la tabla.
 
 ## 11. Evidencias
@@ -76,12 +81,13 @@ Pendiente de autorización para revertir únicamente la expectativa temporal. No
 - Run inicial: [45543432373](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373).
 - Captura del PR y check verde: `evidencias/pr-verde-inicial.png`.
 - Run rojo: [45544687631](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544687631); captura en `evidencias/pr-rojo.png`; diagnóstico redactado en `evidencias/logs/diagnostico-fallo.txt`.
+- Restauración: commit `b9f6fc5b74b690548cb4120c15d2bd8d7008ac5b`; run final verde [45546572374](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45546572374); captura en `evidencias/pr-verde-final.png`.
 - Reporte HTML local: generado en `playwright-report/` (ignorado por Git; no contiene valores de secretos).
 - El artefacto `playwright-report` se subió en el run inicial.
 
 ## 12. Limitaciones
 
-- La ejecución inicial está verde y la mutación produjo el run rojo previsto. Falta autorización para revertirla y obtener el verde final.
+- Se registraron la ejecución inicial verde, la mutación roja prevista y la restauración verde final.
 - Los secretos están presentes por nombre; GitHub no permite comprobar sus valores.
 
 ## 13. Pull Request y cierre

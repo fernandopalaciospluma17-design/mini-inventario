@@ -15,7 +15,7 @@ Los cuatro secretos se referencian únicamente como `secrets.*` en el paso de pr
 - El artefacto Playwright se publicó correctamente.
 - El primer run avisó que las acciones v4 usaban Node 20. Se actualizaron a las versiones actuales con runtime Node 24; la validación pasó en el run 45544049699 (SHA `e3118c382f50375c8b137b4ebc79b485727a1e72`): https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544049699
 - Demostración roja: commit `51346adeb856c6b54d58f9cf534ac27108749b2a`; run 45544687631. Falló solo la expectativa temporal del test de stock bajo: https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544687631
-- Run verde final: pendiente de autorización para revertir la mutación.
+- Restauración autorizada en `b9f6fc5b74b690548cb4120c15d2bd8d7008ac5b`; run verde final 45546572374: https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45546572374
 
 ## Limitaciones
 
