@@ -40,19 +40,27 @@ PR: [#11 — Día 6: automatizar pruebas con GitHub Actions](https://github.com/
 
 ## 6. Demostración roja
 
-Pendiente. No se introducirá una mutación temporal sin autorización expresa del usuario, tal como requieren las instrucciones del Día 6.
+- Mutación autorizada: se cambió temporalmente la expectativa del test `marca como bajo mínimo` en `tests/inventory.spec.js` de `Por debajo del mínimo` a `Suficiente`.
+- Commit rojo: `51346adeb856c6b54d58f9cf534ac27108749b2a`.
+- Run rojo en el mismo PR: [45544687631 — fallido](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544687631).
+- Resultado del run: 3 pruebas pasaron y falló únicamente el escenario mutado. El reporte se publicó.
+- Captura: [`evidencias/pr-rojo.png`](evidencias/pr-rojo.png).
 
 ## 7. Diagnóstico con gh
 
-Pendiente de una ejecución roja real. Se registrarán el job, paso, mensaje y run que correspondan a la mutación, sin inventar resultados.
+- Comandos: `gh pr checks 11` y `gh run view 45544687631 --log-failed`.
+- Job: `Playwright tests`; paso: `Run Playwright tests`.
+- La aserción de `tests/inventory.spec.js:104` esperaba `Suficiente`, mientras la fila real mostraba `Por debajo del mínimo`.
+- La falla coincide con la mutación intencional. El comportamiento de la app sigue correcto y el test terminó su bloque `finally`, que limpia el producto de prueba propio.
+- Resumen redactado: [`evidencias/logs/diagnostico-fallo.txt`](evidencias/logs/diagnostico-fallo.txt).
 
 ## 8. Corrección y ejecución verde final
 
-Pendiente de la autorización y ejecución de la demostración roja.
+Pendiente de autorización para revertir únicamente la expectativa temporal. No se ha corregido todavía; el PR permanece rojo en el commit de mutación.
 
 ## 9. Explicación de la falla en mis palabras
 
-**Borrador para revisión del estudiante:** el registro y el inicio de sesión enviaban campos vacíos porque la app deshabilitaba los controles antes de leerlos con `FormData`. Los campos deshabilitados no aparecen en `FormData`. Al capturar correo y contraseña antes de deshabilitar el formulario, la petición pasó a incluir ambos valores. La demostración de mutación del workflow todavía está pendiente; este borrador no la reemplaza.
+**Borrador para revisión del estudiante:** el cambio temporal hizo que el test esperara “Suficiente” para un producto con cantidad 1 y mínimo 5. GitHub Actions falló en esa aserción porque la app mostró “Por debajo del mínimo”, que es el resultado correcto. `gh run view --log-failed` mostró el texto esperado y el recibido. Al restaurar la expectativa original, la prueba debería pasar; la corrección está pendiente de aprobación. Adáptalo con tus propias palabras antes de entregar.
 
 ## 10. Bitácora de IA
 
@@ -60,19 +68,20 @@ Pendiente de la autorización y ejecución de la demostración roja.
 - Hallazgo y corrección: inspeccionando el payload de registro se encontró que `FormData` omitía correo y contraseña. Se movió la lectura antes de deshabilitar los controles.
 - Error de diagnóstico corregido: inicialmente se atribuyó el rechazo a las credenciales; la petición de Supabase mostró que faltaban los campos, y una intercepción local confirmó el problema sin crear una cuenta.
 - Verificación: intercepción de las solicitudes de registro e inicio confirmó presencia de ambos campos; la suite completa pasó localmente con 4/4 pruebas.
+- Mutación controlada autorizada: una sola expectativa de stock bajo se invirtió, falló localmente y en GitHub por la diferencia prevista; la corrección aún no se aplica.
 - Seguridad: la ejecución de `execute_sql` fue bloqueada anteriormente por la política de aprobación `never`; no se intentó eludir esa restricción. Las pruebas E2E actuales verifican que el usuario de prueba pudo realizar las operaciones previstas en la tabla.
 
 ## 11. Evidencias
 
 - Run inicial: [45543432373](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373).
 - Captura del PR y check verde: `evidencias/pr-verde-inicial.png`.
+- Run rojo: [45544687631](https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544687631); captura en `evidencias/pr-rojo.png`; diagnóstico redactado en `evidencias/logs/diagnostico-fallo.txt`.
 - Reporte HTML local: generado en `playwright-report/` (ignorado por Git; no contiene valores de secretos).
 - El artefacto `playwright-report` se subió en el run inicial.
 
 ## 12. Limitaciones
 
-- La ejecución inicial ya está verde. La demostración roja y la ejecución verde final siguen pendientes.
-- La demostración roja y la ejecución verde final dependen de autorización expresa para introducir y revertir la mutación temporal.
+- La ejecución inicial está verde y la mutación produjo el run rojo previsto. Falta autorización para revertirla y obtener el verde final.
 - Los secretos están presentes por nombre; GitHub no permite comprobar sus valores.
 
 ## 13. Pull Request y cierre

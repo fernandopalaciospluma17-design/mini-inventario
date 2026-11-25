@@ -14,8 +14,9 @@ Los cuatro secretos se referencian únicamente como `secrets.*` en el paso de pr
 - Run remoto inicial verde (SHA `e790bc2123b224300ebfa08711c732b50d77da61`, 4/4 pruebas): https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45543432373
 - El artefacto Playwright se publicó correctamente.
 - El primer run avisó que las acciones v4 usaban Node 20. Se actualizaron a las versiones actuales con runtime Node 24; la validación pasó en el run 45544049699 (SHA `e3118c382f50375c8b137b4ebc79b485727a1e72`): https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544049699
-- Runs rojo y verde final: pendientes de la demostración controlada y autorización expresa.
+- Demostración roja: commit `51346adeb856c6b54d58f9cf534ac27108749b2a`; run 45544687631. Falló solo la expectativa temporal del test de stock bajo: https://github.com/fernandopalaciospluma17-design/mini-inventario/actions/runs/45544687631
+- Run verde final: pendiente de autorización para revertir la mutación.
 
 ## Limitaciones
 
-El PR ya tiene su primera ejecución verde. La demostración roja y la ejecución verde final todavía no existen; requieren autorización expresa antes de introducir la mutación temporal.
+El PR ya tiene una ejecución verde inicial y una roja causada por la mutación temporal. Para continuar a la corrección y al verde final falta autorización expresa.
