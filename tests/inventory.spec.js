@@ -101,7 +101,7 @@ test('marca como bajo mínimo un producto con cantidad menor al mínimo', async 
     await expect(row).toBeVisible();
     await expect(row.getByRole('cell').nth(2)).toHaveText('1');
     await expect(row.getByRole('cell').nth(3)).toHaveText('5');
-    await expect(row).toContainText('Suficiente');
+    await expect(row).toContainText('Por debajo del mínimo');
   } finally {
     if (signedIn && createAttempted) await removeOwnProduct(page, sku);
   }
