@@ -17,3 +17,14 @@ venv/
 
 # Build outputs
 dist/
+
+# Supabase local CLI state
+supabase/.temp/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/.playwright-cli/

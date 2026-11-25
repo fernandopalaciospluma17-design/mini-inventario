@@ -1,0 +1,11 @@
+Verificación visual posterior con playwright-cli, .env ya presente:
+URL: http://localhost:3000/
+Viewports: 1280x800 y 390x844
+
+Errores observados (2):
+- GET /config.js -> HTTP 503 Service Unavailable en la primera inspección posterior, porque el servidor de esa sesión conservaba el entorno con que se inició antes de que se creara .env.
+- GET /favicon.ico -> HTTP 404 Not Found.
+
+Advertencias de consola del navegador: 0.
+La corrección del indicador vacío se verificó en ambos viewports: display=none, ancho=0.
+La sesión de Playwright Test inició un servidor nuevo con .env; el login válido no llegó a mostrar el inventario. El formulario de acceso indicó rechazo genérico. No se capturó ningún token ni cuerpo de autenticación.

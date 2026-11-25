@@ -1,0 +1,10 @@
+Exploración manual con playwright-cli, antes de configurar .env:
+URL: http://localhost:3000/
+Viewports: 1280x800 y 390x844
+
+Errores observados (2):
+- GET /config.js -> HTTP 503 Service Unavailable. El servidor inició sin .env y rechazó configuración Supabase ausente.
+- GET /favicon.ico -> HTTP 404 Not Found.
+
+Advertencias de consola del navegador: 0.
+La interfaz mostró el formulario deshabilitado y el mensaje de configuración faltante. No se intentó iniciar sesión ni se agregaron productos en esta exploración.
