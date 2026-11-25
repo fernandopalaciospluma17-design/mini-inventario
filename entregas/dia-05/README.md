@@ -18,7 +18,7 @@ Explorar Mini Inventario en navegador, corregir un defecto visual reproducible y
 
 Se abrió la app en Chromium, primero en 1280×800 y después en 390×844. Antes de que existiera `.env`, el formulario estaba deshabilitado y mostraba que faltaba la configuración. La consola registró `/config.js` con HTTP 503 y `/favicon.ico` con HTTP 404; no hubo advertencias del navegador. Se guardaron capturas reales en `capturas/antes/`.
 
-Tras configurar `.env`, la sesión de Playwright Test inició un servidor nuevo. El intento de inicio con la cuenta de prueba no mostró el inventario. No se repitieron más intentos tras fallar la prueba de acceso. La consulta MCP siguió sin mostrar tabla `productos`; no se pudo recorrer ni alterar inventario real. El reporte observado está en `consola-inicial.txt` y `consola-despues.txt`.
+Tras configurar `.env`, la sesión de Playwright Test inició un servidor nuevo. El intento de inicio con la cuenta de prueba no mostró el inventario. Después de la confirmación del usuario de que revisó la configuración, se hizo una única comprobación adicional del login válido; también falló y no se repitió. La consulta MCP siguió sin mostrar tabla `productos`; no se pudo recorrer ni alterar inventario real. El reporte observado está en `consola-inicial.txt` y `consola-despues.txt`.
 
 ## 4. Problema real detectado
 
@@ -36,7 +36,7 @@ Escenarios: acceso correcto, contraseña incorrecta, alta de producto y producto
 
 `npx playwright test`: 4 ejecutadas; 1 aprobada (rechazo de contraseña incorrecta) y 3 fallidas (acceso válido y los dos escenarios que requieren sesión). La presencia de variables está comprobada, pero el acceso válido no abrió el inventario. El MCP reporta que `public` sigue sin tablas. No se logró crear ningún producto ni se modificaron datos de la base.
 
-El detalle se encuentra en [`pruebas/resultados-ejecucion.txt`](pruebas/resultados-ejecucion.txt). No se incluyen capturas de una sesión autenticada porque no se pudo establecer.
+El detalle de la suite completa se encuentra en [`pruebas/resultados-ejecucion.txt`](pruebas/resultados-ejecucion.txt). La comprobación adicional del login válido también falló. No se incluyen capturas de una sesión autenticada porque no se pudo establecer.
 
 ## 7. Prueba de mutación
 
@@ -59,4 +59,4 @@ Pendiente. No ejecuté la mutación de `cantidad < minimo`: las pruebas no consi
 
 ## 10. Pull Request
 
-Pendiente de publicación hasta resolver los bloqueos de Supabase y verificar la suite completa. La rama es `dia-05-pruebas`; `main` todavía no contiene el trabajo de Días 3 y 4, por lo que un PR hacia `main` incluiría esas etapas previas.
+PR abierto: [#10 — Día 5: exploración y pruebas de Mini Inventario](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/10), rama `dia-05-pruebas` hacia `main`. `main` todavía no contiene el trabajo de Días 3 y 4, por lo que el PR incluye esas etapas previas. El CRUD real y la mutación siguen pendientes por la falta de tabla visible y de una sesión de prueba válida.

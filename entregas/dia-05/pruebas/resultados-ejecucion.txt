@@ -15,3 +15,6 @@ Las cuatro variables requeridas fueron comprobadas por presencia únicamente; su
 Primer intento de Playwright Test, antes de la ejecución de los cuatro casos: abortó porque un servidor Node.js de diagnóstico iniciado en esta sesión seguía escuchando en el puerto 3000. Se identificó por su línea de comando, se detuvo ese proceso y se repitió la suite; el resultado registrado arriba corresponde a la ejecución completa posterior.
 
 Mutación de stock bajo mínimo: no ejecutada. Sin sesión de usuario ni tabla de productos no se puede demostrar honestamente que una mutación falle y luego pase tras revertirse.
+
+Comprobación adicional posterior del login válido, tras confirmación del usuario de que revisó la configuración local:
+Resultado: falló; el inventario privado no se abrió. No se hicieron más intentos. `test-results/.last-run.json` registra el estado `failed`.
