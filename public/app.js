@@ -156,6 +156,9 @@ function signUpErrorMessage(error) {
   if (error?.code === 'user_already_exists' || error?.code === 'email_exists') return 'Ese correo podría tener ya una cuenta. Si no tienes su contraseña, prueba con otro correo propio que no hayas registrado.';
   if (error?.code === 'email_address_invalid' || error?.code === 'validation_failed') return 'Revisa que el correo sea válido y que la contraseña tenga al menos 8 caracteres.';
   if (error?.status === 429) return 'Se hicieron demasiados intentos. Espera un momento antes de probar otra vez.';
+  if (error?.status === 401 || error?.status === 403) return 'Supabase rechazó la configuración de acceso. Revisa que la URL y la clave pública sean del mismo proyecto.';
+  if (error?.status === 400 || error?.status === 422) return 'Supabase rechazó los datos. Revisa el correo y la contraseña; ese correo podría estar registrado.';
+  if (typeof error?.status === 'number' && error.status >= 500) return 'Supabase no pudo completar el registro ahora. Espera un momento e inténtalo otra vez.';
   return 'No se pudo crear la cuenta. Revisa que el correo sea válido, que puedas acceder a él y que la contraseña tenga al menos 8 caracteres.';
 }
 
