@@ -27,7 +27,7 @@ export default defineConfig({
   webServer: {
     command: 'npm exec --yes --package=node@22 -- node --env-file-if-exists=.env server.js',
     url: 'http://localhost:3000/health',
-    reuseExistingServer: false,
+    reuseExistingServer: !process.env.CI,
     timeout: 30_000,
   },
 });
