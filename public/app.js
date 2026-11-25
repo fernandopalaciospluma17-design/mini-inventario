@@ -149,6 +149,13 @@ function setAuthBusy(busy) {
   signUpButton.disabled = busy;
 }
 
+function signUpErrorMessage(error) {
+  if (error?.code === 'email_provider_disabled') return 'El registro por correo está desactivado en Supabase. Contacta a quien administra el proyecto.';
+  if (error?.code === 'weak_password') return 'La contraseña es demasiado sencilla. Elige otra de al menos 8 caracteres.';
+  if (error?.code === 'over_email_send_rate_limit') return 'Se enviaron demasiados correos. Espera un momento e inténtalo de nuevo.';
+  return 'No se pudo crear la cuenta. Revisa el correo y la contraseña e inténtalo de nuevo.';
+}
+
 function showSession(session) {
   const signedIn = Boolean(session);
   authPanel.hidden = signedIn;
@@ -164,6 +171,7 @@ function showSession(session) {
 
 authForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  authForm.elements.password.autocomplete = 'current-password';
   setAuthBusy(true);
   setMessage(authMessage, 'Iniciando sesión…');
   const { email, password } = Object.fromEntries(new FormData(authForm));
@@ -179,13 +187,23 @@ authForm.addEventListener('submit', async (event) => {
 });
 
 signUpButton.addEventListener('click', async () => {
-  if (!authForm.reportValidity()) return;
+  const emailInput = authForm.elements.email;
+  const passwordInput = authForm.elements.password;
+  passwordInput.autocomplete = 'new-password';
+  if (!authForm.checkValidity()) {
+    if (!emailInput.value.trim()) setMessage(authMessage, 'Escribe tu correo para crear la cuenta.', 'error');
+    else if (!emailInput.validity.valid) setMessage(authMessage, 'Escribe un correo válido.', 'error');
+    else if (!passwordInput.value) setMessage(authMessage, 'Elige una contraseña nueva de al menos 8 caracteres.', 'error');
+    else if (passwordInput.validity.tooShort) setMessage(authMessage, 'La contraseña debe tener al menos 8 caracteres.', 'error');
+    authForm.reportValidity();
+    return;
+  }
   setAuthBusy(true);
   setMessage(authMessage, 'Creando cuenta…');
   const { email, password } = Object.fromEntries(new FormData(authForm));
   try {
     const { data, error } = await client.auth.signUp({ email, password });
-    if (error) setMessage(authMessage, 'No se pudo crear la cuenta. Revisa los datos e inténtalo de nuevo.', 'error');
+    if (error) setMessage(authMessage, signUpErrorMessage(error), 'error');
     else if (!data.session) setMessage(authMessage, 'Cuenta creada. Revisa tu correo para confirmarla y después inicia sesión.', 'success');
     else setMessage(authMessage, 'Cuenta creada y sesión iniciada.', 'success');
   } catch {
