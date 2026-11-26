@@ -1,0 +1,21 @@
+-- Ejecutar desde el SQL Editor con una cuenta administrativa autorizada.
+-- Sustituya CAMBIA_ESTA_CLAVE antes de ejecutar y no guarde el valor en Git.
+
+create role inventario_lector
+  login
+  password 'CAMBIA_ESTA_CLAVE'
+  nosuperuser
+  nocreatedb
+  nocreaterole
+  nobypassrls;
+
+grant usage on schema public to inventario_lector;
+grant select on table public.productos to inventario_lector;
+
+alter table public.productos enable row level security;
+
+create policy lector_ve_productos
+  on public.productos
+  for select
+  to inventario_lector
+  using (true);
