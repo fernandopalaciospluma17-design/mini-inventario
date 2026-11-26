@@ -2,7 +2,7 @@
 
 ## Estado de la actividad
 
-Esta bitácora separa las comprobaciones locales de los pasos externos. No se ha creado ni desplegado un servicio de Render, no se ha provocado una falla remota y no se afirma que la actividad esté completa.
+Esta bitácora separa las comprobaciones locales de los pasos externos. El servicio inicial ya fue publicado en Render; no se ha provocado una falla remota y no se afirma que la actividad esté completa.
 
 - Rama actual de CI/Render: `dia-09-ci-render`.
 - Rama base: `dia-08-mcp`; el PR #14 integró Docker en esta rama con el commit `ea0548fe7ee220615e94da849df952e988345c2a`. El PR #13 del Día 8 sigue abierto hacia `dia-07-skill`.
@@ -37,14 +37,27 @@ Ejecutadas con Node `v22.23.5`:
 - El workflow limita permisos a `contents: read` y no necesita secretos.
 - Estado: workflow ejecutado en GitHub para el PR #15; el job `Tests and Docker build` pasó.
 
+## Publicación inicial en Render
+
+- Servicio: `mini-inventario` (Web Service).
+- Runtime: Docker; plan: Free (una instancia); rama: `dia-08-mcp`; Auto-Deploy habilitado.
+- Servicio ID: `srv-dc3q9vm1egvs73eec4jg`.
+- Despliegue inicial: `dep-dc3q9vu1egvs73eec5dg`, estado `live`.
+- Commit desplegado: `22dd7a0e4419365cfb3938fdddf4cf41e3aa69bf`.
+- URL pública: https://mini-inventario-fucx.onrender.com
+- Variables cargadas desde el panel de Render usando el archivo local ignorado `.env`. Se confirmaron por nombre `SUPABASE_URL` y `SUPABASE_KEY`; sus valores no se mostraron ni se guardaron en esta bitácora.
+- Verificación pública posterior al arranque: `/health`, `/`, `/styles.css`, `/config.js`, `/vendor/supabase.js`, `/app.js` y `/productos.js` devolvieron HTTP 200; la consola quedó sin errores.
+- Evidencia: `evidencias/02-app-publica.png` muestra la pantalla pública de acceso sin datos personales ni secretos.
+- El inicio de sesión real queda pendiente de que una cuenta de prueba autorizada sea introducida directamente en el navegador.
+
 ## Pasos externos pendientes
 
 - PR #14 de Docker: fusionado a `dia-08-mcp`; no tenía checks configurados.
 - PR #15 de CI abierto; el job `Tests and Docker build` pasó. El merge queda pendiente de aprobación del usuario.
 - Configurar Render desde el panel, con `SUPABASE_URL` y `SUPABASE_KEY` privadas, y solicitar aprobación antes del primer despliegue.
-- Verificar URL pública e inicio de sesión con una cuenta de prueba autorizada.
+- Verificar inicio de sesión con una cuenta de prueba autorizada.
 - Render MCP: OAuth completado. Las consultas `list_workspaces` y `list_services` funcionaron en modo de solo lectura; el espacio mostró dos Web Services existentes y no se identificó uno llamado Mini Inventario. No se cambiaron servicios ni se consultaron secretos o logs.
-- Crear un Web Service para Mini Inventario y su primer despliegue: pendientes de aprobación explícita.
+- El MCP confirmó después el servicio nuevo, su URL, rama, runtime y despliegue `live` usando consultas de solo lectura.
 - Solo después de un despliegue funcional, decidir con aprobación explícita si se hace la falla intencional. No se ejecutó ni se modificó un Dockerfile desplegado.
 - Capturas, IDs de despliegue, logs y resultados de diagnóstico: pendientes; no se inventaron evidencias.
 
