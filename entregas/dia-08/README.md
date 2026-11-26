@@ -2,6 +2,16 @@
 
 ## 1. Datos generales
 
+### Revision posterior del estado real
+
+Mediante dos consultas de solo lectura con `supabase-lectura/execute_sql` se confirmo que `public.productos` existe y tiene RLS habilitado. La consulta de `cantidad < minimo` devolvio 14 registros y la de nombre `prueba-escritura` devolvio 0. Son conteos puntuales y pueden cambiar.
+
+El rol `inventario_lector` existe, permite LOGIN, no tiene SUPERUSER, CREATEDB, CREATEROLE, REPLICATION ni BYPASSRLS, y no es miembro de otros roles. El rol `postgres` es miembro de `inventario_lector` con ADMIN OPTION. Sus permisos efectivos en `public.productos` son SELECT verdadero e INSERT, UPDATE y DELETE falsos. Falta comprobar la politica SELECT especifica, el acceso a otros objetos y la conexion real con este rol.
+
+El servidor local supero la validacion de usuario de `DATABASE_URL`, pero la conexion PostgreSQL fallo con `OperationalError` sin SQLSTATE. No se imprimieron los valores de conexion. Las 12 pruebas unitarias pasaron. No se puede determinar si la causa es contrasena, host, conectividad u otra configuracion a partir de esta evidencia.
+
+Sigue pendiente comprobar el rechazo real de escritura del MCP oficial, la conexion y los resultados reales de FastMCP, la comparacion entre ambos servidores y la prueba de inyeccion en un entorno descartable. No se realizo ninguna escritura ni se modificaron productos.
+
 - Actividad: Mini Inventario Dia 8 - Integracion con herramientas.
 - Objetivo: integrar Supabase MCP oficial en solo lectura y un servidor FastMCP propio que usa un rol PostgreSQL de solo lectura.
 - Fecha de realizacion: 2026-11-25.
@@ -37,7 +47,7 @@ codex mcp add supabase-lectura --url "https://mcp.supabase.com/mcp?project_ref=d
 codex mcp login supabase-lectura
 ```
 
-Resultado: `codex mcp login supabase-lectura` respondio `Successfully logged in`. La URL limita los permisos OAuth a lectura y `codex mcp list` muestra el servidor habilitado con OAuth. Aun no se verifico una llamada de herramienta desde ese registro ni se consulto stock o se comprobo el rechazo de `prueba-escritura`.
+Resultado: `codex mcp login supabase-lectura` respondio `Successfully logged in`. La URL utiliza `read_only=true`. Las consultas reales de catalogos y conteos con `execute_sql` funcionaron; falta comprobar el rechazo de `prueba-escritura`.
 
 ## 4. Rol de solo lectura
 
@@ -62,13 +72,13 @@ Inspeccion anterior de catalogos (consulta SQL de solo lectura, 2026-11-25):
 - Las politicas existentes pertenecen a `authenticated`: lectura por usuario y politicas de alta, actualizacion y eliminacion por usuario.
 - No se aplico el SQL de la plantilla ni se creo una contrasena para el rol.
 
-En la revision mas reciente no se pudo repetir la inspeccion: la herramienta de base de datos disponible fallo al renovar su token OAuth. El estado actual del rol queda sin confirmar.
+En una revision posterior fallo la renovacion OAuth del servidor administrativo. La revision actual con `supabase-lectura` si confirmo que el rol existe; vease el resumen al inicio.
 
 Estado de la actividad:
 
-- Creacion/verificacion del rol en Supabase: pendiente; la inspeccion anterior no lo encontro y su estado actual no se pudo confirmar.
+- Rol creado y atributos principales comprobados mediante `supabase-lectura`; falta revisar la politica SELECT y el alcance completo de sus permisos.
 - Prueba de `SELECT`, `INSERT`, `UPDATE` y `DELETE`: pendiente.
-- Comprobacion de RLS y membresias privilegiadas: pendiente.
+- RLS habilitado; el rol no pertenece a otros roles. Falta revisar la politica SELECT especifica.
 - Uso de FastMCP con `inventario_lector`: configurado en el codigo, pendiente de integracion real.
 
 ## 5. Servidor FastMCP
@@ -110,16 +120,16 @@ No existe una herramienta para ejecutar SQL libre ni para insertar, actualizar o
 
 | Aspecto | MCP oficial Supabase | FastMCP propio |
 |---|---|---|
-| Estado | Registrado y OAuth completado; llamada real pendiente | Registrado y probado unitariamente; conexion real pendiente |
+| Estado | Registrado, autenticado y consulta real realizada | Registrado y probado unitariamente; conexion real pendiente |
 | Herramienta utilizada | No medido | `stock_bajo()` prevista |
 | Numero de llamadas | No medido | No medido con base real |
-| Productos encontrados | No disponible | Pendiente de conexion real |
+| Productos encontrados | 14 bajo minimo en la revision | Pendiente de conexion real |
 | Coincidencia de cantidades | No disponible | Pendiente de conexion real |
 | Orden | No medido | Diferencia minima descendente |
 | Facilidad de uso | Pendiente | Registro directo como dos herramientas |
 | Restricciones | Debe quedar en read-only | Rol lector y codigo sin escritura |
 
-No se compararon resultados reales: falta consultar con ambos servidores y confirmar el rol lector. No se inventaron datos ni conteos.
+No se compararon resultados reales: falta conectar el servidor propio con el rol lector.
 
 ## 7. Prueba de inyeccion
 
@@ -184,10 +194,10 @@ Resultados:
 
 ## 9. Limitaciones
 
-- `supabase-lectura` tiene OAuth completado, pero falta comprobar llamadas reales y el rechazo de escritura.
-- El archivo local `mcp-inventario/.env` existe y Git lo ignora. La URL ahora se interpreta como PostgreSQL y apunta al puerto Session pooler, pero no usa el usuario `inventario_lector`; FastMCP la rechaza antes de conectarse. No se imprimio ni se inspecciono su contenido.
-- La inspeccion anterior encontro que `inventario_lector` no existia; la revision mas reciente no pudo volver a consultar los catalogos por un fallo de renovacion OAuth.
-- No se consultaron filas de productos en Supabase; solo se leyeron catálogos para comprobar RLS, políticas y existencia del rol.
+- `supabase-lectura` tiene OAuth completado y consultas reales comprobadas; falta comprobar el rechazo de escritura.
+- El archivo local `mcp-inventario/.env` existe y Git lo ignora. La validacion de usuario paso, pero PostgreSQL devolvio un error de conexion; no se imprimieron credenciales.
+- La inspeccion reciente confirmo que `inventario_lector` existe; faltan comprobaciones de politica y alcance total de permisos.
+- Se consultaron conteos de productos de forma real, sin publicar nombres ni datos personales.
 - No se ejecutaron pruebas reales de escritura o inyeccion.
 - No se creo un producto de prueba porque no hay un entorno descartable; la limpieza de un registro real requeriria aprobacion antes de borrar.
 - Las pruebas de PostgreSQL son unitarias con mocks; estan claramente identificadas como locales.
