@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote, urlsplit
 
 import psycopg
 from dotenv import load_dotenv
@@ -41,7 +41,12 @@ def _database_url() -> str:
         raise RuntimeError(
             "Falta DATABASE_URL. Configure mcp-inventario/.env o el entorno del proceso."
         )
-    if "inventario_lector" not in database_url:
+    try:
+        parsed_url = urlsplit(database_url)
+        username = unquote(parsed_url.username or "")
+    except ValueError as exc:
+        raise RuntimeError("DATABASE_URL no es una URL PostgreSQL valida.") from exc
+    if not (username == "inventario_lector" or username.startswith("inventario_lector.")):
         raise RuntimeError("DATABASE_URL debe usar el rol inventario_lector.")
     return database_url
 
@@ -55,12 +60,9 @@ def _execute_read(query: str, params: tuple[Any, ...] = ()) -> list[dict[str, An
                 return cursor.fetchall()
     except RuntimeError:
         raise
-    except psycopg.OperationalError:
-        print("No se pudo conectar con PostgreSQL.", file=sys.stderr)
-        return []
-    except psycopg.Error:
-        print("PostgreSQL rechazo o fallo una consulta de solo lectura.", file=sys.stderr)
-        return []
+    except psycopg.Error as exc:
+        # No convertir errores de conexión/consulta en un resultado vacío ni filtrar URLs.
+        raise RuntimeError("Falló la consulta de solo lectura a PostgreSQL.") from None
 
 
 @mcp.tool

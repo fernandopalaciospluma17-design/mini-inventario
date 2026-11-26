@@ -98,6 +98,33 @@ class ServerTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "DATABASE_URL"):
                 server._execute_read(server.BUSCAR_SQL, ("%x%",))
 
+    def test_rechaza_rol_si_solo_aparece_en_contrasena_o_host(self):
+        for url in (
+            "postgresql://otro:inventario_lector@host/postgres",
+            "postgresql://otro@inventario_lector.host/postgres",
+        ):
+            with self.subTest(url=url), patch.dict("os.environ", {"DATABASE_URL": url}):
+                with self.assertRaisesRegex(RuntimeError, "rol inventario_lector"):
+                    server._database_url()
+
+    def test_acepta_usuario_pooler_con_proyecto(self):
+        url = "postgresql://inventario_lector.dstksngwmveeuyhcoaga:clave@host/postgres"
+        with patch.dict("os.environ", {"DATABASE_URL": url}):
+            self.assertEqual(server._database_url(), url)
+
+    def test_fallo_postgres_no_se_convierte_en_lista_vacia_ni_filtra_secreto(self):
+        secret_url = "postgresql://inventario_lector.project:secreto@host/postgres"
+        with patch.dict("os.environ", {"DATABASE_URL": secret_url}):
+            with patch("server.psycopg.connect", side_effect=server.psycopg.OperationalError("detalles")):
+                with self.assertRaisesRegex(RuntimeError, "Falló la consulta") as caught:
+                    server._execute_read(server.BUSCAR_SQL)
+        self.assertNotIn("secreto", str(caught.exception))
+
+    def test_fastmcp_descubre_solo_las_dos_herramientas(self):
+        import asyncio
+        tools = asyncio.run(server.mcp.get_tools())
+        self.assertEqual(set(tools), {"buscar_producto", "stock_bajo"})
+
     def test_no_hay_herramientas_de_escritura_o_sql_libre(self):
         source = Path(server.__file__).read_text(encoding="utf-8").lower()
         forbidden = ("execute_sql", "query_sql", "run_sql", " insert ", " update ", " delete ")
