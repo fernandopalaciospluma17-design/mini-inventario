@@ -164,9 +164,9 @@ function showSession(session) {
 
 authForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  const { email, password } = Object.fromEntries(new FormData(authForm));
   setAuthBusy(true);
   setMessage(authMessage, 'Iniciando sesión…');
-  const { email, password } = Object.fromEntries(new FormData(authForm));
   try {
     const { error } = await client.auth.signInWithPassword({ email, password });
     if (error) setMessage(authMessage, 'No se pudo iniciar sesión. Revisa el correo y la contraseña e inténtalo de nuevo.', 'error');
@@ -180,9 +180,9 @@ authForm.addEventListener('submit', async (event) => {
 
 signUpButton.addEventListener('click', async () => {
   if (!authForm.reportValidity()) return;
+  const { email, password } = Object.fromEntries(new FormData(authForm));
   setAuthBusy(true);
   setMessage(authMessage, 'Creando cuenta…');
-  const { email, password } = Object.fromEntries(new FormData(authForm));
   try {
     const { data, error } = await client.auth.signUp({ email, password });
     if (error) setMessage(authMessage, 'No se pudo crear la cuenta. Revisa los datos e inténtalo de nuevo.', 'error');
