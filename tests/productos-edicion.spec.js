@@ -187,3 +187,19 @@ test('rechaza un SKU duplicado y conserva ambos productos originales', async ({ 
     await cleanOwnProducts(page, createdSkus);
   }
 });
+
+test('rechaza al registrar un SKU duplicado normalizado', async ({ page }) => {
+  const firstSku = sku();
+  await setupMockInventory(page);
+  await addProduct(page, { nombre: 'Producto original', sku: firstSku, cantidad: 2, minimo: 0 });
+
+  await page.getByLabel('Nombre').fill('Producto duplicado');
+  await page.getByLabel('SKU').fill(`  ${firstSku.toLowerCase()}  `);
+  await page.getByLabel('Cantidad', { exact: true }).fill('1');
+  await page.getByLabel('Cantidad mínima').fill('0');
+  await page.getByRole('button', { name: /Agregar producto/ }).click();
+
+  await expect(page.locator('#form-message')).toContainText('Ya existe un producto con ese SKU.');
+  await expect(rowForSku(page, firstSku)).toHaveCount(1);
+  await expect(page.getByRole('row').filter({ hasText: 'Producto duplicado' })).toHaveCount(0);
+});
