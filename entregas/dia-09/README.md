@@ -35,15 +35,16 @@ Ejecutadas con Node `v22.23.5`:
 
 - Se añadió `.github/workflows/ci.yml`: en cada Pull Request ejecuta `npm ci`, `npm test` y `docker build`; en `main` y `dia-08-mcp` también corre al recibir un push.
 - El workflow limita permisos a `contents: read` y no necesita secretos.
-- Estado: pendiente de ejecutarse en GitHub al publicar el PR de CI.
+- Estado: workflow ejecutado en GitHub para el PR #15; el job `Tests and Docker build` pasó.
 
 ## Pasos externos pendientes
 
 - PR #14 de Docker: fusionado a `dia-08-mcp`; no tenía checks configurados.
-- Revisar los resultados del workflow nuevo después de publicarlo en el PR de CI.
+- PR #15 de CI abierto; el job `Tests and Docker build` pasó. El merge queda pendiente de aprobación del usuario.
 - Configurar Render desde el panel, con `SUPABASE_URL` y `SUPABASE_KEY` privadas, y solicitar aprobación antes del primer despliegue.
 - Verificar URL pública e inicio de sesión con una cuenta de prueba autorizada.
-- Render MCP: servidor registrado; OAuth pendiente de que el usuario complete el flujo del navegador. No se consultaron servicios ni logs aún.
+- Render MCP: OAuth completado. Las consultas `list_workspaces` y `list_services` funcionaron en modo de solo lectura; el espacio mostró dos Web Services existentes y no se identificó uno llamado Mini Inventario. No se cambiaron servicios ni se consultaron secretos o logs.
+- Crear un Web Service para Mini Inventario y su primer despliegue: pendientes de aprobación explícita.
 - Solo después de un despliegue funcional, decidir con aprobación explícita si se hace la falla intencional. No se ejecutó ni se modificó un Dockerfile desplegado.
 - Capturas, IDs de despliegue, logs y resultados de diagnóstico: pendientes; no se inventaron evidencias.
 
@@ -59,4 +60,4 @@ Ejecutadas con Node `v22.23.5`:
 - [Instrucciones del Día 9](../../docs/INSTRUCCIONES_CODEX_DIA_09_MINI_INVENTARIO.md)
 - [PR del Día 8](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/13)
 - [PR del Día 9 / Docker](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/14) (fusionado a `dia-08-mcp`).
-- PR del workflow CI: en preparación desde `dia-09-ci-render`.
+- [PR del workflow CI](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/15) (abierto; CI aprobado; merge pendiente de autorización).
