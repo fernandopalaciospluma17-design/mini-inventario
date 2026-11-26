@@ -16,7 +16,7 @@
 
 ```text
 Codex
-  |-- supabase-lectura --> MCP oficial Supabase (registrado, OAuth pendiente)
+  |-- supabase-lectura --> MCP oficial Supabase (registrado, OAuth completado)
   |                         `--> PostgreSQL / public.productos
   `-- inventario --------> FastMCP propio (stdio)
                             `--> psycopg
@@ -62,7 +62,7 @@ Inspeccion anterior de catalogos (consulta SQL de solo lectura, 2026-11-25):
 - Las politicas existentes pertenecen a `authenticated`: lectura por usuario y politicas de alta, actualizacion y eliminacion por usuario.
 - No se aplico el SQL de la plantilla ni se creo una contrasena para el rol.
 
-En la revision posterior no se pudo repetir la inspeccion: la herramienta de base de datos disponible fallo al renovar su token OAuth. El estado actual del rol queda sin confirmar.
+En la revision mas reciente no se pudo repetir la inspeccion: la herramienta de base de datos disponible fallo al renovar su token OAuth. El estado actual del rol queda sin confirmar.
 
 Estado de la actividad:
 
@@ -185,7 +185,7 @@ Resultados:
 ## 9. Limitaciones
 
 - `supabase-lectura` tiene OAuth completado, pero falta comprobar llamadas reales y el rechazo de escritura.
-- El archivo local `mcp-inventario/.env` existe y Git lo ignora. La prueba local mas reciente fallo al interpretar `DATABASE_URL` como URL PostgreSQL; no se imprimio ni se inspecciono su contenido.
+- El archivo local `mcp-inventario/.env` existe y Git lo ignora. La URL ahora se interpreta como PostgreSQL y apunta al puerto Session pooler, pero no usa el usuario `inventario_lector`; FastMCP la rechaza antes de conectarse. No se imprimio ni se inspecciono su contenido.
 - La inspeccion anterior encontro que `inventario_lector` no existia; la revision mas reciente no pudo volver a consultar los catalogos por un fallo de renovacion OAuth.
 - No se consultaron filas de productos en Supabase; solo se leyeron catálogos para comprobar RLS, políticas y existencia del rol.
 - No se ejecutaron pruebas reales de escritura o inyeccion.
