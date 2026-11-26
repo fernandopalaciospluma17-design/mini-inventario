@@ -4,8 +4,8 @@
 
 Esta bitácora separa las comprobaciones locales de los pasos externos. No se ha creado ni desplegado un servicio de Render, no se ha provocado una falla remota y no se afirma que la actividad esté completa.
 
-- Rama: `dia-09-docker`.
-- Rama base propuesta: `dia-08-mcp` (el PR del Día 8 sigue abierto y no está integrado).
+- Rama actual de CI/Render: `dia-09-ci-render`.
+- Rama base: `dia-08-mcp`; el PR #14 integró Docker en esta rama con el commit `ea0548fe7ee220615e94da849df952e988345c2a`. El PR #13 del Día 8 sigue abierto hacia `dia-07-skill`.
 - Node.js probado: `v22.23.5`.
 - Docker CLI/daemon: Docker Desktop `29.8.0` disponible para la segunda ejecución.
 - Aplicación: Node.js/Express, comando real `npm start`, puerto `process.env.PORT` con fallback `3000`.
@@ -24,19 +24,26 @@ Ejecutadas con Node `v22.23.5`:
 
 - `npm ci`: completado, 77 paquetes instalados, sin vulnerabilidades reportadas.
 - `node --test`: 7/7 pruebas aprobadas.
+- `.github/workflows/ci.yml` replica instalación, pruebas y build Docker; los tres pasos se ejecutaron localmente con Node 22 y Docker.
 - Servidor iniciado localmente con `PORT=3187`: `/health` respondió 200 y `/` respondió 200.
 - `git diff --check`: aprobado.
 - El primer `docker build` no pudo ejecutarse porque Docker Desktop no estaba activo. Después de que el usuario lo inició, `docker build -t mini-inventario .` terminó correctamente; contexto transferido: 62.45 kB.
 - `docker run --rm --env-file .env -e PORT=3187 -p 3187:3187 mini-inventario`: comprobado localmente. `/health`, `/`, `/config.js` y `/vendor/supabase.js` respondieron 200. No se mostró ni guardó el contenido de `/config.js`.
 - El contenedor informó usuario `node` y estado `running`; se detuvo al terminar la prueba.
 
+## Integración continua
+
+- Se añadió `.github/workflows/ci.yml`: en cada Pull Request ejecuta `npm ci`, `npm test` y `docker build`; en `main` y `dia-08-mcp` también corre al recibir un push.
+- El workflow limita permisos a `contents: read` y no necesita secretos.
+- Estado: pendiente de ejecutarse en GitHub al publicar el PR de CI.
+
 ## Pasos externos pendientes
 
-- Revisar el PR de Docker. No existe `.github/workflows` en la rama base, así que GitHub informa que no hay CI configurado.
-- Integrar el PR solo después de la aprobación del usuario.
+- PR #14 de Docker: fusionado a `dia-08-mcp`; no tenía checks configurados.
+- Revisar los resultados del workflow nuevo después de publicarlo en el PR de CI.
 - Configurar Render desde el panel, con `SUPABASE_URL` y `SUPABASE_KEY` privadas, y solicitar aprobación antes del primer despliegue.
 - Verificar URL pública e inicio de sesión con una cuenta de prueba autorizada.
-- Configurar y comprobar el MCP de Render usando su documentación oficial.
+- Render MCP: servidor registrado; OAuth pendiente de que el usuario complete el flujo del navegador. No se consultaron servicios ni logs aún.
 - Solo después de un despliegue funcional, decidir con aprobación explícita si se hace la falla intencional. No se ejecutó ni se modificó un Dockerfile desplegado.
 - Capturas, IDs de despliegue, logs y resultados de diagnóstico: pendientes; no se inventaron evidencias.
 
@@ -51,4 +58,5 @@ Ejecutadas con Node `v22.23.5`:
 
 - [Instrucciones del Día 9](../../docs/INSTRUCCIONES_CODEX_DIA_09_MINI_INVENTARIO.md)
 - [PR del Día 8](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/13)
-- [PR del Día 9](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/14) (borrador; base `dia-08-mcp`).
+- [PR del Día 9 / Docker](https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/14) (fusionado a `dia-08-mcp`).
+- PR del workflow CI: en preparación desde `dia-09-ci-render`.
