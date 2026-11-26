@@ -28,7 +28,7 @@ Ambos caminos estan previstos como consulta. El servidor propio no contiene herr
 
 ## 3. MCP oficial Supabase
 
-Estado: **servidor registrado en Codex; OAuth pendiente**.
+Estado: **servidor registrado y OAuth completado; faltan las consultas de actividad**.
 
 Comando preparado sin secretos:
 
@@ -37,7 +37,7 @@ codex mcp add supabase-lectura --url "https://mcp.supabase.com/mcp?project_ref=d
 codex mcp login supabase-lectura
 ```
 
-Resultado comprobado con `codex mcp list`: `supabase-lectura` esta enabled y **Not logged in**. La URL limita los permisos OAuth a lectura. No se pudo consultar desde este registro Codex ni comprobar el rechazo de `prueba-escritura`. La conexion administrativa de inspeccion disponible para esta sesion se uso solo para consultas de catalogo (sin cambios).
+Resultado: `codex mcp login supabase-lectura` respondio `Successfully logged in`. La URL limita los permisos OAuth a lectura y `codex mcp list` muestra el servidor habilitado con OAuth. Aun no se verifico una llamada de herramienta desde ese registro ni se consulto stock o se comprobo el rechazo de `prueba-escritura`.
 
 ## 4. Rol de solo lectura
 
@@ -55,16 +55,18 @@ El criterio local utilizado es `cantidad < minimo`, igual al criterio de la inte
 
 Se preparo una plantilla segura en [mcp-inventario/sql/role_lector.sql.template](../../../mcp-inventario/sql/role_lector.sql.template). Contiene marcadores sin credenciales reales.
 
-Inspeccion de catalogos (consulta SQL de solo lectura, 2026-11-25):
+Inspeccion anterior de catalogos (consulta SQL de solo lectura, 2026-11-25):
 
 - `public.productos` existe y tiene RLS habilitado; `FORCE ROW LEVEL SECURITY` esta desactivado.
 - `inventario_lector` no existe en `pg_roles`; por ello no tiene grants sobre `public.productos`.
 - Las politicas existentes pertenecen a `authenticated`: lectura por usuario y politicas de alta, actualizacion y eliminacion por usuario.
 - No se aplico el SQL de la plantilla ni se creo una contrasena para el rol.
 
+En la revision posterior no se pudo repetir la inspeccion: la herramienta de base de datos disponible fallo al renovar su token OAuth. El estado actual del rol queda sin confirmar.
+
 Estado de la actividad:
 
-- Creacion del rol en Supabase: pendiente; la inspeccion disponible es solo lectura y no existe el rol.
+- Creacion/verificacion del rol en Supabase: pendiente; la inspeccion anterior no lo encontro y su estado actual no se pudo confirmar.
 - Prueba de `SELECT`, `INSERT`, `UPDATE` y `DELETE`: pendiente.
 - Comprobacion de RLS y membresias privilegiadas: pendiente.
 - Uso de FastMCP con `inventario_lector`: configurado en el codigo, pendiente de integracion real.
@@ -108,7 +110,7 @@ No existe una herramienta para ejecutar SQL libre ni para insertar, actualizar o
 
 | Aspecto | MCP oficial Supabase | FastMCP propio |
 |---|---|---|
-| Estado | Registrado; OAuth pendiente | Registrado y probado unitariamente |
+| Estado | Registrado y OAuth completado; llamada real pendiente | Registrado y probado unitariamente; conexion real pendiente |
 | Herramienta utilizada | No medido | `stock_bajo()` prevista |
 | Numero de llamadas | No medido | No medido con base real |
 | Productos encontrados | No disponible | Pendiente de conexion real |
@@ -117,7 +119,7 @@ No existe una herramienta para ejecutar SQL libre ni para insertar, actualizar o
 | Facilidad de uso | Pendiente | Registro directo como dos herramientas |
 | Restricciones | Debe quedar en read-only | Rol lector y codigo sin escritura |
 
-No se compararon resultados reales: el MCP oficial registrado en Codex sigue sin OAuth y el rol lector no existe. No se inventaron datos ni conteos.
+No se compararon resultados reales: falta consultar con ambos servidores y confirmar el rol lector. No se inventaron datos ni conteos.
 
 ## 7. Prueba de inyeccion
 
@@ -157,7 +159,7 @@ Tambien se detecto que el interprete global no tenia psycopg; la solucion fue ej
 - Aprobado: `.venv\Scripts\python.exe -m pip install -r mcp-inventario\requirements.txt`, porque instala exclusivamente las dependencias fijadas del servidor.
 - Aprobado: las consultas parametrizadas y las pruebas con mocks, porque no modifican datos reales.
 - Rechazado: el uso de credenciales administrativas o SQL libre.
-- Pendiente: OAuth para `supabase-lectura`; Codex CLI si esta disponible, pero el registro nuevo queda sin iniciar sesion hasta autorizarlo en navegador.
+- Aprobado: OAuth para `supabase-lectura`; se registro el mensaje de inicio de sesion exitoso.
 
 ### D. Como se comprobo
 
@@ -182,8 +184,9 @@ Resultados:
 
 ## 9. Limitaciones
 
-- `supabase-lectura` esta registrado pero requiere completar OAuth desde Codex.
-- El rol PostgreSQL `inventario_lector` no existe; no se proporciono una conexion suya.
+- `supabase-lectura` tiene OAuth completado, pero falta comprobar llamadas reales y el rechazo de escritura.
+- El archivo local `mcp-inventario/.env` existe y Git lo ignora. La prueba local mas reciente fallo al interpretar `DATABASE_URL` como URL PostgreSQL; no se imprimio ni se inspecciono su contenido.
+- La inspeccion anterior encontro que `inventario_lector` no existia; la revision mas reciente no pudo volver a consultar los catalogos por un fallo de renovacion OAuth.
 - No se consultaron filas de productos en Supabase; solo se leyeron catálogos para comprobar RLS, políticas y existencia del rol.
 - No se ejecutaron pruebas reales de escritura o inyeccion.
 - No se creo un producto de prueba porque no hay un entorno descartable; la limpieza de un registro real requeriria aprobacion antes de borrar.
