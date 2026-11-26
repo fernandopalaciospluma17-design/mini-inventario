@@ -58,12 +58,13 @@ function isProjectUrl(value) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT || 3000);
+  const host = '0.0.0.0';
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error('PORT debe ser un entero entre 1 y 65535.');
   }
 
   const app = createApp();
-  app.listen(port, () => {
-    console.log(`Mini Inventario disponible en http://localhost:${port}`);
+  app.listen(port, host, () => {
+    console.log(`Mini Inventario escuchando en ${host}:${port}`);
   });
 }
