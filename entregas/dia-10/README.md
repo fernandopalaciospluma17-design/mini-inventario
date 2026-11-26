@@ -9,7 +9,7 @@ Se investigaron los reportes de cantidad negativa y SKU duplicado. Ninguno se re
 - Aplicación: https://mini-inventario-fucx.onrender.com
 - Issue: https://github.com/fernandopalaciospluma17-design/mini-inventario/issues/19
 - Rama: `dia-10-incidente`; base: `dia-08-mcp`.
-- PR: se documenta en GitHub al publicar la rama.
+- PR: https://github.com/fernandopalaciospluma17-design/mini-inventario/pull/20
 
 ## Evidencia y bitácora
 
